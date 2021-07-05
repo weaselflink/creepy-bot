@@ -17,17 +17,17 @@ class BuildOrder(
         TrainUnit(Units.ZERG_OVERLORD, 2),
         DroneUp(16),
         BuildStructure(Units.ZERG_SPAWNING_POOL),
+        TrainUnit(Units.ZERG_OVERLORD, 3),
         TrainUnit(Units.ZERG_QUEEN, 1),
         DroneUp(20),
-        TrainUnit(Units.ZERG_OVERLORD, 3),
         KeepTraining(Units.ZERG_ZERGLING),
         KeepSupplied()
     )
 
     override fun onStep() {
         order
-            .forEach {
-                it.tryExecute(this)
+            .firstOrNull {
+                !it.tryExecute(this)
             }
     }
 
@@ -50,15 +50,17 @@ class BuildOrder(
 
 sealed class BuildOrderStep {
 
-    abstract fun tryExecute(buildOrder: BuildOrder)
+    abstract fun tryExecute(buildOrder: BuildOrder): Boolean
 }
 
 data class DroneUp(val needed: Int) : BuildOrderStep() {
-    override fun tryExecute(buildOrder: BuildOrder) {
+    override fun tryExecute(buildOrder: BuildOrder): Boolean {
         val count = buildOrder.zergBot.totalCount(Units.ZERG_DRONE)
         if (count < needed) {
             buildOrder.zergBot.trainUnit(Units.ZERG_DRONE)
+            return false
         }
+        return true
     }
 }
 
@@ -66,11 +68,13 @@ data class TrainUnit(
     val type: UnitType,
     val needed: Int
 ) : BuildOrderStep() {
-    override fun tryExecute(buildOrder: BuildOrder) {
+    override fun tryExecute(buildOrder: BuildOrder): Boolean {
         val count = buildOrder.zergBot.totalCount(type)
         if (count < needed) {
             buildOrder.zergBot.trainUnit(type)
+            return false
         }
+        return true
     }
 }
 
@@ -78,29 +82,33 @@ data class BuildStructure(
     val type: UnitType,
     val needed: Int = 1
 ) : BuildOrderStep() {
-    override fun tryExecute(buildOrder: BuildOrder) {
+    override fun tryExecute(buildOrder: BuildOrder): Boolean {
         val count = buildOrder.zergBot.readyCount(type)
         if (count < needed) {
             buildOrder.tryBuildStructure(Units.ZERG_SPAWNING_POOL)
+            return false
         }
+        return true
     }
 }
 
 data class KeepTraining(
     val type: UnitType
 ) : BuildOrderStep() {
-    override fun tryExecute(buildOrder: BuildOrder) {
+    override fun tryExecute(buildOrder: BuildOrder): Boolean {
         buildOrder.zergBot.trainUnit(type)
+        return true
     }
 }
 
 data class KeepSupplied(val minOverlords: Int = 3) : BuildOrderStep() {
-    override fun tryExecute(buildOrder: BuildOrder) {
+    override fun tryExecute(buildOrder: BuildOrder): Boolean {
         if (buildOrder.zergBot.totalCount(Units.ZERG_OVERLORD) >= minOverlords &&
             buildOrder.zergBot.supplyLeft < 4 &&
             buildOrder.zergBot.pendingCount(Units.ZERG_OVERLORD) == 0
         ) {
             buildOrder.zergBot.trainUnit(Units.ZERG_OVERLORD)
         }
+        return true
     }
 }
