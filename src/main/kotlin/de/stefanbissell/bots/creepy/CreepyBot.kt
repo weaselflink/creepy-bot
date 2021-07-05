@@ -6,14 +6,15 @@ import com.github.ocraft.s2client.protocol.data.Units
 
 class CreepyBot : ZergBot() {
 
-    private val gameMap = GameMap(this)
-    private val bases = Bases(this)
-    private val buildOrder = BuildOrder(this, gameMap, bases)
-    private val components = listOf(
-        gameMap,
-        bases,
-        buildOrder
-    )
+    private val gameMap by lazy { GameMap(this) }
+    private val buildOrder by lazy { BuildOrder(this, gameMap, bases) }
+    private val components by lazy {
+        listOf(
+            gameMap,
+            bases,
+            buildOrder
+        )
+    }
 
     override fun onGameStart() {
         components.forEach {
@@ -31,10 +32,8 @@ class CreepyBot : ZergBot() {
 
         if (readyCount(Units.ZERG_ZERGLING) >= 12) {
             ownUnits
-                .filter {
-                    it.type == Units.ZERG_ZERGLING &&
-                        it.orders.isEmpty()
-                }
+                .ofType(Units.ZERG_ZERGLING)
+                .idle
                 .forEach {
                     actions()
                         .unitCommand(it, Abilities.ATTACK, gameMap.enemyStart, false)

@@ -17,6 +17,7 @@ class BuildOrder(
         TrainUnit(Units.ZERG_OVERLORD, 2),
         DroneUp(16),
         BuildStructure(Units.ZERG_SPAWNING_POOL),
+        TrainUnit(Units.ZERG_QUEEN, 1),
         DroneUp(20),
         TrainUnit(Units.ZERG_OVERLORD, 3),
         KeepTraining(Units.ZERG_ZERGLING),
@@ -93,7 +94,7 @@ data class KeepTraining(
     }
 }
 
-data class KeepSupplied(val minOverlords: Int = 4) : BuildOrderStep() {
+data class KeepSupplied(val minOverlords: Int = 3) : BuildOrderStep() {
     override fun tryExecute(buildOrder: BuildOrder) {
         if (buildOrder.zergBot.totalCount(Units.ZERG_OVERLORD) >= minOverlords &&
             buildOrder.zergBot.supplyLeft < 4 &&

@@ -1,13 +1,13 @@
 package de.stefanbissell.bots.creepy
 
 import com.github.ocraft.s2client.protocol.data.Abilities
-import com.github.ocraft.s2client.protocol.data.Ability
 import com.github.ocraft.s2client.protocol.data.UnitType
 import com.github.ocraft.s2client.protocol.data.Units
 import com.github.ocraft.s2client.protocol.spatial.Point
-import com.github.ocraft.s2client.protocol.unit.Unit
 
 open class ZergBot : CommonBot() {
+
+    val bases by lazy { Bases(this) }
 
     private val workerTypes = listOf(
         Units.ZERG_DRONE,
@@ -19,6 +19,7 @@ open class ZergBot : CommonBot() {
     )
 
     private val trainingAbilities = mapOf(
+        Units.ZERG_QUEEN to Abilities.TRAIN_QUEEN,
         Units.ZERG_DRONE to Abilities.TRAIN_DRONE,
         Units.ZERG_OVERLORD to Abilities.TRAIN_OVERLORD,
         Units.ZERG_ZERGLING to Abilities.TRAIN_ZERGLING
@@ -32,20 +33,17 @@ open class ZergBot : CommonBot() {
 
     private val idleLarva
         get() = ownUnits
-            .filter {
-                it.type == Units.ZERG_LARVA &&
-                    it.orders.isEmpty()
-            }
+            .ofType(Units.ZERG_LARVA)
+            .idle
 
     fun pendingCount(type: UnitType): Int {
         return trainingAbilities[type]
             ?.let { ability ->
                 ownUnits
                     .count { unit ->
-                        unit.type == Units.ZERG_EGG &&
-                            unit.orders.any {
-                                it.ability.abilityId == ability.abilityId
-                            }
+                        unit.orders.any {
+                            it.ability.abilityId == ability.abilityId
+                        }
                     }
                     .let {
                         if (type == Units.ZERG_ZERGLING) it * 2 else it
@@ -63,12 +61,36 @@ open class ZergBot : CommonBot() {
     }
 
     fun trainUnit(type: UnitType) {
+        if (type == Units.ZERG_QUEEN) {
+            trainQueen()
+        } else {
+            trainUnitFromLarva(type)
+        }
+    }
+
+    private fun trainQueen() {
+        trainingAbilities[Units.ZERG_QUEEN]
+            ?.also { ability ->
+                bases.baseBuildings
+                    .filter {
+                        canCast(it, ability, false)
+                    }
+                    .randomOrNull()
+                    ?.also {
+                        actions()
+                            .unitCommand(it, ability, false)
+                    }
+            }
+
+    }
+
+    private fun trainUnitFromLarva(type: UnitType) {
         idleLarva
             .randomOrNull()
             ?.also { larva ->
                 trainingAbilities[type]
                     ?.takeIf {
-                        larva.canCast(it, false)
+                        canCast(larva, it, false)
                     }
                     ?.also {
                         actions()
