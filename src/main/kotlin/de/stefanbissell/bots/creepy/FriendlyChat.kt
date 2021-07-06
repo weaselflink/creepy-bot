@@ -5,7 +5,7 @@ import com.github.ocraft.s2client.protocol.action.ActionChat
 
 class FriendlyChat(
     private val zergBot: ZergBot
-) : ClientEvents {
+) : BotComponent {
 
     override fun onGameStart() {
         zergBot.actions()

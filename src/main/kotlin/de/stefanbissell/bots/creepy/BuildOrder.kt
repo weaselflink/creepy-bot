@@ -1,6 +1,5 @@
 package de.stefanbissell.bots.creepy
 
-import com.github.ocraft.s2client.bot.ClientEvents
 import com.github.ocraft.s2client.protocol.data.UnitType
 import com.github.ocraft.s2client.protocol.data.Units
 import com.github.ocraft.s2client.protocol.spatial.Point
@@ -10,7 +9,7 @@ class BuildOrder(
     val zergBot: ZergBot,
     private val gameMap: GameMap,
     private val bases: Bases
-) : ClientEvents {
+) : BotComponent {
 
     private val order = listOf(
         DroneUp(14),

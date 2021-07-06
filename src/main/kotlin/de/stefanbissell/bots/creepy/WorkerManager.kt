@@ -1,13 +1,12 @@
 package de.stefanbissell.bots.creepy
 
-import com.github.ocraft.s2client.bot.ClientEvents
 import com.github.ocraft.s2client.protocol.data.Abilities
 import com.github.ocraft.s2client.protocol.unit.Unit
 
 class WorkerManager(
     private val zergBot: ZergBot,
     private val bases: Bases
-) : ClientEvents {
+) : BotComponent {
 
     override fun onStep() {
         zergBot.workers

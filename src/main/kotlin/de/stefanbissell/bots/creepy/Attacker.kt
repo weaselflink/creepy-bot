@@ -1,13 +1,12 @@
 package de.stefanbissell.bots.creepy
 
-import com.github.ocraft.s2client.bot.ClientEvents
 import com.github.ocraft.s2client.protocol.data.Abilities
 import com.github.ocraft.s2client.protocol.data.Units
 
 class Attacker(
     private val zergBot: ZergBot,
     private val gameMap: GameMap
-) : ClientEvents {
+) : BotComponent {
 
     override fun onStep() {
         if (zergBot.readyCount(Units.ZERG_ZERGLING) >= 12) {

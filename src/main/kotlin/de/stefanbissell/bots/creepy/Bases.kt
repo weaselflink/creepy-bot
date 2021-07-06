@@ -1,6 +1,5 @@
 package de.stefanbissell.bots.creepy
 
-import com.github.ocraft.s2client.bot.ClientEvents
 import com.github.ocraft.s2client.protocol.data.Abilities
 import com.github.ocraft.s2client.protocol.data.Buffs
 import com.github.ocraft.s2client.protocol.data.Units
@@ -8,7 +7,7 @@ import com.github.ocraft.s2client.protocol.spatial.Point
 
 class Bases(
     private val zergBot: ZergBot
-) : ClientEvents {
+) : BotComponent {
 
     private val baseTypes = listOf(
         Units.ZERG_HATCHERY,
@@ -43,7 +42,6 @@ class Bases(
                     position = it.position
                 )
             }
-        println(currentBases.size)
         tryInjectLarva()
     }
 

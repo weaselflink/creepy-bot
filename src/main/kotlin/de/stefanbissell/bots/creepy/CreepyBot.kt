@@ -1,22 +1,24 @@
 package de.stefanbissell.bots.creepy
 
+import com.github.ocraft.s2client.bot.ClientEvents
+import org.kodein.di.DI
+import org.kodein.di.allInstances
+import org.kodein.di.bind
+import org.kodein.di.instance
+import org.kodein.di.singleton
+
 class CreepyBot : ZergBot() {
 
-    private val gameMap by lazy { GameMap(this) }
-    private val friendlyChat by lazy { FriendlyChat(this) }
-    private val workerManager by lazy { WorkerManager(this, bases) }
-    private val buildOrder by lazy { BuildOrder(this, gameMap, bases) }
-    private val attacker by lazy { Attacker(this, gameMap) }
-    private val components by lazy {
-        listOf(
-            gameMap,
-            bases,
-            friendlyChat,
-            workerManager,
-            buildOrder,
-            attacker
-        )
+    private val di = DI {
+        bind { instance(this@CreepyBot) }
+        bind { singleton { GameMap(instance()) } }
+        bind { singleton { Bases(instance()) } }
+        bind { singleton { FriendlyChat(instance()) } }
+        bind { singleton { WorkerManager(instance(), instance()) } }
+        bind { singleton { BuildOrder(instance(), instance(), instance()) } }
+        bind { singleton { Attacker(instance(), instance()) } }
     }
+    private val components by di.allInstances<BotComponent>()
 
     override fun onGameStart() {
         components.forEach {
@@ -30,3 +32,5 @@ class CreepyBot : ZergBot() {
         }
     }
 }
+
+interface BotComponent : ClientEvents

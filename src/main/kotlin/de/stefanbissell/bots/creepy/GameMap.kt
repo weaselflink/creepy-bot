@@ -1,17 +1,16 @@
 package de.stefanbissell.bots.creepy
 
-import com.github.ocraft.s2client.bot.ClientEvents
 import com.github.ocraft.s2client.bot.S2Agent
 import com.github.ocraft.s2client.protocol.data.Units
 import com.github.ocraft.s2client.protocol.spatial.Point
 import com.github.ocraft.s2client.protocol.spatial.Point2d
 import com.github.ocraft.s2client.protocol.unit.Alliance
-import java.lang.Float.min
 import java.lang.Float.max
+import java.lang.Float.min
 
 class GameMap(
     private val sc2Agent: S2Agent
-) : ClientEvents {
+) : BotComponent {
 
     private val startRaw by lazy {
         sc2Agent.observation().gameInfo.startRaw.get()

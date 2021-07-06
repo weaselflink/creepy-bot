@@ -14,6 +14,7 @@ repositories {
 
 dependencies {
     implementation("com.github.ocraft:ocraft-s2client-bot:0.4.7")
+    implementation("org.kodein.di:kodein-di:7.6.0")
 }
 
 tasks.withType<KotlinCompile> {
