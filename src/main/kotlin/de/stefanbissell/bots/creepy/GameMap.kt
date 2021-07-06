@@ -24,7 +24,8 @@ class GameMap(
     val center: Point by lazy { Point.of(width / 2f, height / 2f) }
 
     override fun onGameStart() {
-        expansions = sc2Agent.query().calculateExpansionLocations(sc2Agent.observation())
+        expansions = sc2Agent.query()
+            .calculateExpansionLocations(sc2Agent.observation())
         ownStart = sc2Agent.observation()
             .getUnits(Alliance.SELF) { it.unit().type == Units.ZERG_HATCHERY }
             .map { it.unit() }

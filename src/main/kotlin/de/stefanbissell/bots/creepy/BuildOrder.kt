@@ -20,6 +20,7 @@ class BuildOrder(
         BuildStructure(Units.ZERG_EXTRACTOR),
         TrainUnit(Units.ZERG_QUEEN, 1),
         DroneUp(20),
+        BuildStructure(Units.ZERG_HATCHERY, 2),
         KeepTraining(Units.ZERG_ZERGLING),
         KeepSupplied()
     )
@@ -40,6 +41,19 @@ class BuildOrder(
                         it.geysers
                     }
                     .randomOrNull()
+                    ?.also {
+                        zergBot.tryBuildStructure(type, it)
+                    }
+            }
+            Units.ZERG_HATCHERY -> {
+                gameMap
+                    .expansions
+                    .filter { expansion ->
+                        zergBot.baseBuildings.none { it.position.distance(expansion) < 4 }
+                    }
+                    .minByOrNull {
+                        it.toPoint2d().distance(gameMap.ownStart)
+                    }
                     ?.also {
                         zergBot.tryBuildStructure(type, it)
                     }

@@ -19,6 +19,7 @@ open class ZergBot : CommonBot() {
     )
 
     private val trainingAbilities = mapOf(
+        Units.ZERG_HATCHERY to Abilities.BUILD_HATCHERY,
         Units.ZERG_SPAWNING_POOL to Abilities.BUILD_SPAWNING_POOL,
         Units.ZERG_EXTRACTOR to Abilities.BUILD_EXTRACTOR,
         Units.ZERG_QUEEN to Abilities.TRAIN_QUEEN,
