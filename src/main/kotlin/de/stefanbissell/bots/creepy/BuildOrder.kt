@@ -17,6 +17,7 @@ class BuildOrder(
         BuildStructure(Units.ZERG_SPAWNING_POOL),
         DroneUp(16),
         TrainUnit(Units.ZERG_OVERLORD, 3),
+        BuildStructure(Units.ZERG_EXTRACTOR),
         TrainUnit(Units.ZERG_QUEEN, 1),
         DroneUp(20),
         KeepTraining(Units.ZERG_ZERGLING),
@@ -30,17 +31,34 @@ class BuildOrder(
             }
     }
 
-    fun tryBuildStructure(building: Units) {
-        val cc = bases
-            .currentBases
-            .first()
-            .position
-        val spot = cc
-            .towards(gameMap.center, 6f)
-            .add(Point.of(getRandomScalar(), getRandomScalar()).mul(4.0f))
-        val clamped = gameMap.clampToMap(spot)
-        zergBot.tryBuildStructure(building, clamped)
-    }
+    fun tryBuildStructure(type: UnitType) =
+        when (type) {
+            Units.ZERG_EXTRACTOR -> {
+                bases
+                    .currentBases
+                    .flatMap {
+                        it.geysers
+                    }
+                    .randomOrNull()
+                    ?.also {
+                        zergBot.tryBuildStructure(type, it)
+                    }
+            }
+            else -> {
+                bases
+                    .currentBases
+                    .first()
+                    .position
+                    .towards(gameMap.center, 6f)
+                    .add(Point.of(getRandomScalar(), getRandomScalar()).mul(4.0f))
+                    .let {
+                        gameMap.clampToMap(it)
+                    }
+                    .also {
+                        zergBot.tryBuildStructure(type, it)
+                    }
+            }
+        }
 
     private fun getRandomScalar(): Float {
         return Random.nextFloat() * 2 - 1
@@ -82,9 +100,9 @@ data class BuildStructure(
     val needed: Int = 1
 ) : BuildOrderStep() {
     override fun tryExecute(buildOrder: BuildOrder): Boolean {
-        val count = buildOrder.zergBot.readyCount(type)
+        val count = buildOrder.zergBot.totalCount(type)
         if (count < needed) {
-            buildOrder.tryBuildStructure(Units.ZERG_SPAWNING_POOL)
+            buildOrder.tryBuildStructure(type)
             return false
         }
         return true

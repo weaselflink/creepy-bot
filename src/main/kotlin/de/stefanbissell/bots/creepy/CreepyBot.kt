@@ -1,6 +1,7 @@
 package de.stefanbissell.bots.creepy
 
 import com.github.ocraft.s2client.bot.ClientEvents
+import com.github.ocraft.s2client.protocol.data.Units
 import org.kodein.di.DI
 import org.kodein.di.allInstances
 import org.kodein.di.bind

@@ -42,6 +42,12 @@ open class CommonBot : S2Agent() {
             .asUnits()
             .ofTypes(mineralFieldTypes)
 
+    val vespeneGeysers
+        get() = observation()
+            .getUnits(Alliance.NEUTRAL)
+            .asUnits()
+            .ofTypes(vespeneGeyserTypes)
+
     val ownUnits
         get() = observation()
             .getUnits(Alliance.SELF)
@@ -63,9 +69,6 @@ open class CommonBot : S2Agent() {
 
 fun List<Unit>.ofType(type: UnitType) =
     filter { it.type == type }
-
-fun List<Unit>.ofTypes(vararg type: UnitType) =
-    filter { it.type in type }
 
 fun List<Unit>.ofTypes(types: List<UnitType>) =
     filter { it.type in types }

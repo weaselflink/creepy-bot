@@ -4,21 +4,23 @@ import com.github.ocraft.s2client.protocol.data.Abilities
 import com.github.ocraft.s2client.protocol.data.UnitType
 import com.github.ocraft.s2client.protocol.data.Units
 import com.github.ocraft.s2client.protocol.spatial.Point
+import com.github.ocraft.s2client.protocol.unit.Unit
 
 open class ZergBot : CommonBot() {
 
-    val bases by lazy { Bases(this) }
-
-    private val workerTypes = listOf(
-        Units.ZERG_DRONE,
-        Units.ZERG_DRONE_BURROWED
+    val baseTypes = listOf(
+        Units.ZERG_HATCHERY,
+        Units.ZERG_HIVE,
+        Units.ZERG_LAIR
     )
 
-    private val buildingAbilities = mapOf(
-        Units.ZERG_SPAWNING_POOL to Abilities.BUILD_SPAWNING_POOL
+    private val workerTypes = listOf(
+        Units.ZERG_DRONE
     )
 
     private val trainingAbilities = mapOf(
+        Units.ZERG_SPAWNING_POOL to Abilities.BUILD_SPAWNING_POOL,
+        Units.ZERG_EXTRACTOR to Abilities.BUILD_EXTRACTOR,
         Units.ZERG_QUEEN to Abilities.TRAIN_QUEEN,
         Units.ZERG_DRONE to Abilities.TRAIN_DRONE,
         Units.ZERG_OVERLORD to Abilities.TRAIN_OVERLORD,
@@ -35,6 +37,12 @@ open class ZergBot : CommonBot() {
         get() = ownUnits
             .ofType(Units.ZERG_LARVA)
             .idle
+
+    private val baseBuildings
+        get() = ownUnits
+            .filter {
+                it.type in baseTypes
+            }
 
     fun pendingCount(type: UnitType): Int {
         return trainingAbilities[type]
@@ -53,7 +61,7 @@ open class ZergBot : CommonBot() {
     }
 
     fun readyCount(type: UnitType): Int {
-        return ownUnits.count { it.type == type }
+        return ownUnits.ofType(type).count()
     }
 
     fun totalCount(type: UnitType): Int {
@@ -71,7 +79,7 @@ open class ZergBot : CommonBot() {
     private fun trainQueen() {
         trainingAbilities[Units.ZERG_QUEEN]
             ?.also { ability ->
-                bases.baseBuildings
+                baseBuildings
                     .filter {
                         canCast(it, ability, false)
                     }
@@ -99,17 +107,42 @@ open class ZergBot : CommonBot() {
             }
     }
 
-    fun tryBuildStructure(building: Units, position: Point) {
-        if (!canAfford(building)) {
+    fun tryBuildStructure(type: UnitType, position: Point) {
+        if (!canAfford(type)) {
             return
         }
-        val ability = buildingAbilities[building] ?: return
-        val builder = workers.randomOrNull() ?: return
+        val ability = trainingAbilities[type] ?: return
+        val builder = workers
+            .filter {
+                canCast(it, ability)
+            }
+            .randomOrNull()
+            ?: return
         actions()
             .unitCommand(
                 builder,
                 ability,
                 position.toPoint2d(),
+                false
+            )
+    }
+
+    fun tryBuildStructure(type: UnitType, target: Unit) {
+        if (!canAfford(type)) {
+            return
+        }
+        val ability = trainingAbilities[type] ?: return
+        val builder = workers
+            .filter {
+                canCast(it, ability)
+            }
+            .randomOrNull()
+            ?: return
+        actions()
+            .unitCommand(
+                builder,
+                ability,
+                target,
                 false
             )
     }

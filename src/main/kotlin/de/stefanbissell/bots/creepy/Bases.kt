@@ -9,19 +9,13 @@ class Bases(
     private val zergBot: ZergBot
 ) : BotComponent {
 
-    private val baseTypes = listOf(
-        Units.ZERG_HATCHERY,
-        Units.ZERG_HIVE,
-        Units.ZERG_LAIR
-    )
-
     val currentBases: MutableList<Base> = mutableListOf()
 
     val baseBuildings
         get() = zergBot
             .ownUnits
             .filter {
-                it.type in baseTypes
+                it.type in zergBot.baseTypes
             }
 
     override fun onStep() {
@@ -86,6 +80,17 @@ class Base(
             ?.let { b ->
                 zergBot
                     .mineralFields
+                    .filter {
+                        it.position.distance(b.position) < 9f
+                    }
+            }
+            ?: emptyList()
+
+    val geysers
+        get() = building
+            ?.let { b ->
+                zergBot
+                    .vespeneGeysers
                     .filter {
                         it.position.distance(b.position) < 9f
                     }
