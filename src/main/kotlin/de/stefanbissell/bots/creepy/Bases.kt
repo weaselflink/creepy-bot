@@ -11,20 +11,13 @@ class Bases(
 
     val currentBases: MutableList<Base> = mutableListOf()
 
-    val baseBuildings
-        get() = zergBot
-            .ownUnits
-            .filter {
-                it.type in zergBot.baseTypes
-            }
-
     override fun onStep() {
         currentBases.removeIf { base ->
             zergBot.observation()
                 .units
                 .none { it.tag.value == base.buildingId }
         }
-        baseBuildings
+        zergBot.baseBuildings
             .filter { building ->
                 currentBases
                     .none { it.buildingId == building.tag.value }
@@ -44,7 +37,7 @@ class Bases(
             .ofType(Units.ZERG_QUEEN)
             .idle
             .mapNotNull { queen ->
-                baseBuildings
+                zergBot.baseBuildings
                     .firstOrNull { it.position.distance(queen.position) < 9 }
                     ?.let {
                         queen to it

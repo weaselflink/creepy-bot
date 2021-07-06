@@ -8,7 +8,7 @@ import com.github.ocraft.s2client.protocol.unit.Unit
 
 open class ZergBot : CommonBot() {
 
-    val baseTypes = listOf(
+    private val baseTypes = listOf(
         Units.ZERG_HATCHERY,
         Units.ZERG_HIVE,
         Units.ZERG_LAIR
@@ -38,7 +38,7 @@ open class ZergBot : CommonBot() {
             .ofType(Units.ZERG_LARVA)
             .idle
 
-    private val baseBuildings
+    val baseBuildings
         get() = ownUnits
             .filter {
                 it.type in baseTypes
