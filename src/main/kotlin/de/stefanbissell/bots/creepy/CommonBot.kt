@@ -73,18 +73,19 @@ open class CommonBot : S2Agent() {
             .contains(ability)
 
     fun isHarvestingMinerals(unit: Unit): Boolean {
-        val gatherOrder = unit.orders
-            .firstOrNull { it.ability == Abilities.HARVEST_GATHER }
+        val gatherOrder = unit.orderOfType(Abilities.HARVEST_GATHER)
         if (gatherOrder != null) {
             return gatherOrder.targetUnit()?.type in mineralFieldTypes
         }
-        val returnOrder = unit.orders
-            .firstOrNull { it.ability == Abilities.HARVEST_RETURN }
+        val returnOrder = unit.orderOfType(Abilities.HARVEST_RETURN)
         if (returnOrder != null) {
             return unit.buffs.intersect(mineralBuffs).isNotEmpty()
         }
         return false
     }
+
+    private fun Unit.orderOfType(type: Ability) =
+        orders.firstOrNull { it.ability == type }
 
     private fun UnitOrder.targetUnit() =
         targetedUnitTag
