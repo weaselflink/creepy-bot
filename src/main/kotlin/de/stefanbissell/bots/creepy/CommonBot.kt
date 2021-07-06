@@ -11,7 +11,7 @@ import java.time.Duration
 
 open class CommonBot : S2Agent() {
 
-    private val mineralFieldTypes = listOf(
+    val mineralFieldTypes = listOf(
         Units.NEUTRAL_MINERAL_FIELD, Units.NEUTRAL_MINERAL_FIELD750,
         Units.NEUTRAL_RICH_MINERAL_FIELD, Units.NEUTRAL_RICH_MINERAL_FIELD750,
         Units.NEUTRAL_PURIFIER_MINERAL_FIELD, Units.NEUTRAL_PURIFIER_MINERAL_FIELD750,

@@ -30,6 +30,8 @@ class CreepyBot : ZergBot() {
         components.forEach {
             it.onStep()
         }
+
+        debug().sendDebug()
     }
 }
 
