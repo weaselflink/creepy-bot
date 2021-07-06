@@ -61,14 +61,14 @@ class BuildOrder(
             else -> {
                 bases
                     .currentBases
-                    .first()
-                    .position
-                    .towards(gameMap.center, 6f)
-                    .add(Point.of(getRandomScalar(), getRandomScalar()).mul(4.0f))
-                    .let {
+                    .firstOrNull()
+                    ?.position
+                    ?.towards(gameMap.center, 6f)
+                    ?.add(Point.of(getRandomScalar(), getRandomScalar()).mul(4.0f))
+                    ?.let {
                         gameMap.clampToMap(it)
                     }
-                    .also {
+                    ?.also {
                         zergBot.tryBuildStructure(type, it)
                     }
             }

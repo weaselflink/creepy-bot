@@ -17,21 +17,26 @@ class WorkerManager(
     }
 
     private fun Unit.backToWork() {
-        val nextMinerals = bases.currentBases
+        val closestMinerals = closestMineralsNearBase() ?: closestMinerals()
+        closestMinerals
+            ?.also {
+                zergBot.actions()
+                    .unitCommand(this, Abilities.HARVEST_GATHER_DRONE, it, false)
+            }
+    }
+
+    private fun Unit.closestMinerals() =
+        zergBot.mineralFields
+            .minByOrNull {
+                it.position.distance(position)
+            }
+
+    private fun Unit.closestMineralsNearBase() =
+        bases.currentBases
             .flatMap {
                 it.mineralFields
             }
             .minByOrNull {
                 it.position.distance(position)
             }
-            ?: zergBot.mineralFields
-                .minByOrNull {
-                    it.position.distance(position)
-                }
-        nextMinerals
-            ?.also {
-                zergBot.actions()
-                    .unitCommand(this, Abilities.HARVEST_GATHER_DRONE, it, false)
-            }
-    }
 }
