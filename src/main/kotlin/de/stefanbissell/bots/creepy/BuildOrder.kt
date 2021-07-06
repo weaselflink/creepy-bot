@@ -37,8 +37,8 @@ class BuildOrder(
             .first()
             .position
         val spot = cc
-            .towards(gameMap.center, 8f)
-            .add(Point.of(getRandomScalar(), getRandomScalar()).mul(5.0f))
+            .towards(gameMap.center, 6f)
+            .add(Point.of(getRandomScalar(), getRandomScalar()).mul(4.0f))
         val clamped = gameMap.clampToMap(spot)
         zergBot.tryBuildStructure(building, clamped)
     }

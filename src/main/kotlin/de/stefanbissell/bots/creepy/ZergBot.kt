@@ -25,7 +25,7 @@ open class ZergBot : CommonBot() {
         Units.ZERG_ZERGLING to Abilities.TRAIN_ZERGLING
     )
 
-    private val workers
+    val workers
         get() = ownUnits
             .filter {
                 it.type in workerTypes

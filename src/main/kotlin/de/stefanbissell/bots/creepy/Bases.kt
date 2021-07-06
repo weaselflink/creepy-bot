@@ -27,12 +27,13 @@ class Bases(
 
     override fun onStep() {
         currentBases.removeIf { base ->
-            zergBot.observation().units.none { it.tag.value == base.building }
+            zergBot.observation().units.none { it.tag.value == base.buildingId }
         }
         baseBuildings
             .forEach {
                 currentBases += Base(
-                    building = it.tag.value,
+                    zergBot = zergBot,
+                    buildingId = it.tag.value,
                     position = it.position
                 )
             }
@@ -63,6 +64,26 @@ class Bases(
 }
 
 class Base(
-    val building: Long,
+    private val zergBot: ZergBot,
+    val buildingId: Long,
     val position: Point
-)
+) {
+
+    val building
+        get() = zergBot
+            .ownUnits
+            .firstOrNull {
+                it.tag.value == buildingId
+            }
+
+    val mineralFields
+        get() = building
+            ?.let { b ->
+                zergBot
+                    .mineralFields
+                    .filter {
+                        it.position.distance(b.position) < 9f
+                    }
+            }
+            ?: emptyList()
+}
