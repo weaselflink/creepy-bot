@@ -2,16 +2,19 @@ package de.stefanbissell.bots.creepy
 
 import com.github.ocraft.s2client.bot.S2Agent
 import com.github.ocraft.s2client.bot.gateway.UnitInPool
-import com.github.ocraft.s2client.protocol.data.Ability
-import com.github.ocraft.s2client.protocol.data.UnitType
-import com.github.ocraft.s2client.protocol.data.Units
+import com.github.ocraft.s2client.protocol.data.*
 import com.github.ocraft.s2client.protocol.unit.Alliance
 import com.github.ocraft.s2client.protocol.unit.Unit
-import java.time.Duration
+import com.github.ocraft.s2client.protocol.unit.UnitOrder
 
 open class CommonBot : S2Agent() {
 
-    val mineralFieldTypes = listOf(
+    private val mineralBuffs = listOf(
+        Buffs.CARRY_MINERAL_FIELD_MINERALS,
+        Buffs.CARRY_HIGH_YIELD_MINERAL_FIELD_MINERALS
+    )
+
+    private val mineralFieldTypes = listOf(
         Units.NEUTRAL_MINERAL_FIELD, Units.NEUTRAL_MINERAL_FIELD750,
         Units.NEUTRAL_RICH_MINERAL_FIELD, Units.NEUTRAL_RICH_MINERAL_FIELD750,
         Units.NEUTRAL_PURIFIER_MINERAL_FIELD, Units.NEUTRAL_PURIFIER_MINERAL_FIELD750,
@@ -68,6 +71,33 @@ open class CommonBot : S2Agent() {
             .abilities
             .map { it.ability }
             .contains(ability)
+
+    fun isHarvestingMinerals(unit: Unit): Boolean {
+        val gatherOrder = unit.orders
+            .firstOrNull { it.ability == Abilities.HARVEST_GATHER }
+        if (gatherOrder != null) {
+            return gatherOrder.targetUnit()?.type in mineralFieldTypes
+        }
+        val returnOrder = unit.orders
+            .firstOrNull { it.ability == Abilities.HARVEST_RETURN }
+        if (returnOrder != null) {
+            return unit.buffs.intersect(mineralBuffs).isNotEmpty()
+        }
+        return false
+    }
+
+    private fun UnitOrder.targetUnit() =
+        targetedUnitTag
+            .map { it.value }
+            .orElse(null)
+            ?.let { id ->
+                observation()
+                    .units
+                    .firstOrNull {
+                        it.tag.value == id
+                    }
+                    ?.unit()
+            }
 
     private fun Iterable<UnitInPool>.asUnits() = map { it.unit() }
 }
