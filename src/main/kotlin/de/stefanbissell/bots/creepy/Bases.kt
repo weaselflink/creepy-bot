@@ -27,9 +27,15 @@ class Bases(
 
     override fun onStep() {
         currentBases.removeIf { base ->
-            zergBot.observation().units.none { it.tag.value == base.buildingId }
+            zergBot.observation()
+                .units
+                .none { it.tag.value == base.buildingId }
         }
         baseBuildings
+            .filter { building ->
+                currentBases
+                    .none { it.buildingId == building.tag.value }
+            }
             .forEach {
                 currentBases += Base(
                     zergBot = zergBot,
@@ -37,6 +43,7 @@ class Bases(
                     position = it.position
                 )
             }
+        println(currentBases.size)
         tryInjectLarva()
     }
 
@@ -69,7 +76,7 @@ class Base(
     val position: Point
 ) {
 
-    val building
+    private val building
         get() = zergBot
             .ownUnits
             .firstOrNull {
