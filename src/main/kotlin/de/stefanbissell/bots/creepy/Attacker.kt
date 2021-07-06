@@ -9,7 +9,7 @@ class Attacker(
 ) : BotComponent {
 
     override fun onStep() {
-        if (zergBot.readyCount(Units.ZERG_ZERGLING) >= 12) {
+        if (enoughTroops()) {
             zergBot.ownUnits
                 .ofType(Units.ZERG_ZERGLING)
                 .idle
@@ -18,5 +18,10 @@ class Attacker(
                         .unitCommand(it, Abilities.ATTACK, gameMap.enemyStart, false)
                 }
         }
+    }
+
+    private fun enoughTroops(): Boolean {
+        val troops = zergBot.readyCount(Units.ZERG_ZERGLING)
+        return troops >= 40 || troops >= (zergBot.gameTime.exactMinutes * 5)
     }
 }

@@ -7,6 +7,7 @@ import com.github.ocraft.s2client.protocol.data.UnitType
 import com.github.ocraft.s2client.protocol.data.Units
 import com.github.ocraft.s2client.protocol.unit.Alliance
 import com.github.ocraft.s2client.protocol.unit.Unit
+import java.time.Duration
 
 open class CommonBot : S2Agent() {
 
@@ -52,6 +53,10 @@ open class CommonBot : S2Agent() {
         get() = observation()
             .getUnits(Alliance.SELF)
             .asUnits()
+
+    val gameTime
+        get() = GameTime(observation().gameLoop)
+
 
     fun canCast(
         unit: Unit,
