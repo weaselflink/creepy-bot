@@ -38,7 +38,7 @@ class BuildOrder(
                 bases
                     .currentBases
                     .flatMap {
-                        it.geysers
+                        it.emptyGeysers
                     }
                     .randomOrNull()
                     ?.also {

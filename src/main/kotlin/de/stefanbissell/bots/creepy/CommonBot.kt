@@ -70,6 +70,9 @@ open class CommonBot : S2Agent() {
 fun List<Unit>.ofType(type: UnitType) =
     filter { it.type == type }
 
+fun List<Unit>.ofTypes(vararg types: UnitType) =
+    filter { it.type in types }
+
 fun List<Unit>.ofTypes(types: List<UnitType>) =
     filter { it.type in types }
 

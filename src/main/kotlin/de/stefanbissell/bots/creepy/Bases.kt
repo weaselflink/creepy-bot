@@ -79,7 +79,7 @@ class Base(
             }
             ?: emptyList()
 
-    val geysers
+    private val geysers
         get() = building
             ?.let { b ->
                 zergBot
@@ -89,4 +89,17 @@ class Base(
                     }
             }
             ?: emptyList()
+
+    val emptyGeysers
+        get() = geysers
+            .filter { geyser ->
+                zergBot.ownUnits
+                    .ofTypes(
+                        Units.ZERG_EXTRACTOR,
+                        Units.ZERG_EXTRACTOR_RICH
+                    )
+                    .none {
+                        it.position.distance(geyser.position) < 1
+                     }
+            }
 }
