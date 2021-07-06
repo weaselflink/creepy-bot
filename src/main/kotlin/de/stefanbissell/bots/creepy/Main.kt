@@ -13,7 +13,7 @@ fun main(args: Array<String>) {
         .loadSettings(args)
         .setParticipants(
             S2Coordinator.createParticipant(Race.ZERG, bot),
-            S2Coordinator.createComputer(Race.TERRAN, Difficulty.EASY)
+            S2Coordinator.createComputer(Race.TERRAN, Difficulty.MEDIUM)
         )
         .launchStarcraft()
         .startGame(LocalMap.of(Path("EphemeronLE.SC2Map")))

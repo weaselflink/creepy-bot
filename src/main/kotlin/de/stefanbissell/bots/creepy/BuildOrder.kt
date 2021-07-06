@@ -14,8 +14,8 @@ class BuildOrder(
     private val order = listOf(
         DroneUp(14),
         TrainUnit(Units.ZERG_OVERLORD, 2),
-        DroneUp(16),
         BuildStructure(Units.ZERG_SPAWNING_POOL),
+        DroneUp(16),
         TrainUnit(Units.ZERG_OVERLORD, 3),
         TrainUnit(Units.ZERG_QUEEN, 1),
         DroneUp(20),
