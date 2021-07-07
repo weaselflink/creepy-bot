@@ -18,37 +18,71 @@ class WorkerManager(
                 it.backToWork()
             }
 
-        val mineralWorkers = zergBot.workers
-            .filter {
-                zergBot.isHarvestingMinerals(it)
-            }
-            .onEach {
-                debugText(it, "minerals")
-            }
         zergBot.workers
-            .filter {
-                zergBot.isHarvestingVespene(it)
-            }
-            .onEach {
-                debugText(it, "vespene")
+            .forEach {
+                if (zergBot.isHarvestingMinerals(it)) {
+                    debugText(it, "minerals")
+                }
+                if (zergBot.isHarvestingVespene(it)) {
+                    debugText(it, "vespene")
+                }
             }
 
-        val underSaturatedExtractors = zergBot.ownVespeneBuildings
-            .ready
+        val basesWithSurplus = bases.currentBases
             .filter {
-                it.assignedHarvesters.orElse(0) < 3
+                it.workerCount > it.optimalWorkerCount + 3
             }
-        if (underSaturatedExtractors.isNotEmpty() && (prioritizeGas || mineralWorkers.size < 16)) {
-            mineralWorkers
-                .randomOrNull()
-                ?.also { worker ->
-                    underSaturatedExtractors
+        val basesWithNeed = bases.currentBases
+            .filter {
+                it.workerCount < it.optimalWorkerCount
+            }
+
+        if (basesWithNeed.isNotEmpty() && basesWithSurplus.isNotEmpty()) {
+            val worker = basesWithSurplus
+                .random()
+                .surplusWorker
+            if (worker != null) {
+                val extractors = basesWithNeed
+                    .flatMap {
+                        it.underSaturatedExtractors
+                    }
+                if (extractors.isNotEmpty()) {
+                    extractors
                         .closestTo(worker)
                         ?.also {
                             zergBot.actions()
                                 .unitCommand(worker, Abilities.HARVEST_GATHER_DRONE, it, false)
                         }
+                } else {
+                    basesWithNeed
+                        .flatMap {
+                            it.mineralFields
+                        }
+                        .closestTo(worker)
+                        ?.also {
+                            zergBot.actions()
+                                .unitCommand(worker, Abilities.HARVEST_GATHER_DRONE, it, false)
+                        }
+                }
+            }
+        } else {
+            bases.currentBases
+                .forEach { base ->
+                    val underSaturatedExtractors = base.underSaturatedExtractors
+                    val mineralWorkers = base.mineralWorkers
+                    if (underSaturatedExtractors.isNotEmpty() && (prioritizeGas || mineralWorkers.size > base.mineralFields.size * 2)) {
+                        mineralWorkers
+                            .randomOrNull()
+                            ?.also { worker ->
+                                underSaturatedExtractors
+                                    .closestTo(worker)
+                                    ?.also {
+                                        zergBot.actions()
+                                            .unitCommand(worker, Abilities.HARVEST_GATHER_DRONE, it, false)
+                                    }
 
+                            }
+                    }
                 }
         }
     }

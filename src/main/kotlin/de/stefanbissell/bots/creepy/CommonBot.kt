@@ -69,9 +69,13 @@ open class CommonBot : S2Agent() {
             .getUnits(Alliance.SELF)
             .asUnits()
 
-    val ownVespeneBuildings
+    val ownWorkingVespeneBuildings
         get() = ownUnits
             .ofTypes(vespeneBuildingTypes)
+            .ready
+            .filter {
+                it.vespeneContents.orElse(0) > 0
+            }
 
     val gameTime
         get() = GameTime(observation().gameLoop)

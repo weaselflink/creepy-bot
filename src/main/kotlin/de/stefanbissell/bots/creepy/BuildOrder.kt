@@ -25,6 +25,7 @@ class BuildOrder(
         ResearchUpgrade(Upgrades.ZERGLING_MOVEMENT_SPEED),
         BuildStructure(Units.ZERG_HATCHERY, 2),
         BuildStructure(Units.ZERG_EVOLUTION_CHAMBER),
+        DroneUp(25),
         KeepTraining(Units.ZERG_ZERGLING),
         KeepSupplied(),
         ResearchUpgrade(Upgrades.ZERG_GROUND_ARMORS_LEVEL1),

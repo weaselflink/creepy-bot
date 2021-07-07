@@ -4,6 +4,7 @@ import com.github.ocraft.s2client.protocol.data.Abilities
 import com.github.ocraft.s2client.protocol.data.Buffs
 import com.github.ocraft.s2client.protocol.data.Units
 import com.github.ocraft.s2client.protocol.spatial.Point
+import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
 class Bases(
     private val zergBot: ZergBot
@@ -100,6 +101,65 @@ class Base(
                     )
                     .none {
                         it.position.distance(geyser.position) < 1
-                     }
+                    }
             }
+
+    private val workingExtractors
+        get() = building
+            ?.let { b ->
+                zergBot
+                    .ownWorkingVespeneBuildings
+                    .filter {
+                        it.position.distance(b.position) < 9f
+                    }
+            }
+            ?: emptyList()
+
+    val underSaturatedExtractors
+        get() = workingExtractors
+            .filter {
+                it.assignedHarvesters.orElse(0) < 3
+            }
+
+    private val workers
+        get() = building
+            ?.let { b ->
+                zergBot
+                    .workers
+                    .filter {
+                        it.position.distance(b.position) < 9f
+                    }
+                    .filter {
+                        zergBot.isHarvestingMinerals(it) ||
+                            zergBot.isHarvestingVespene(it)
+                    }
+            }
+            ?: emptyList()
+
+    val mineralWorkers
+        get() = building
+            ?.let { b ->
+                zergBot
+                    .workers
+                    .filter {
+                        it.position.distance(b.position) < 9f
+                    }
+                    .filter {
+                        zergBot.isHarvestingMinerals(it)
+                    }
+            }
+            ?: emptyList()
+
+    val workerCount: Int
+        get() = workers.size
+
+    val optimalWorkerCount: Int
+        get() = workingExtractors.size * 3 + mineralFields.size * 2
+
+    val surplusWorker: S2Unit?
+        get() = if (workerCount <= optimalWorkerCount) {
+            null
+        } else {
+            workers.randomOrNull()
+        }
 }
