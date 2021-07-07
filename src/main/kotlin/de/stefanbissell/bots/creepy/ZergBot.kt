@@ -25,6 +25,7 @@ open class ZergBot : CommonBot() {
         Units.ZERG_HATCHERY to Abilities.BUILD_HATCHERY,
         Units.ZERG_SPAWNING_POOL to Abilities.BUILD_SPAWNING_POOL,
         Units.ZERG_EXTRACTOR to Abilities.BUILD_EXTRACTOR,
+        Units.ZERG_EVOLUTION_CHAMBER to Abilities.BUILD_EVOLUTION_CHAMBER,
         Units.ZERG_QUEEN to Abilities.TRAIN_QUEEN,
         Units.ZERG_DRONE to Abilities.TRAIN_DRONE,
         Units.ZERG_OVERLORD to Abilities.TRAIN_OVERLORD,
@@ -41,6 +42,16 @@ open class ZergBot : CommonBot() {
             Upgrades.ZERGLING_ATTACK_SPEED,
             Abilities.RESEARCH_ZERGLING_ADRENAL_GLANDS,
             Units.ZERG_SPAWNING_POOL
+        ),
+        UpgradeData(
+            Upgrades.ZERG_GROUND_ARMORS_LEVEL1,
+            Abilities.RESEARCH_ZERG_GROUND_ARMOR,
+            Units.ZERG_EVOLUTION_CHAMBER
+        ),
+        UpgradeData(
+            Upgrades.ZERG_MELEE_WEAPONS_LEVEL1,
+            Abilities.RESEARCH_ZERG_MELEE_WEAPONS,
+            Units.ZERG_EVOLUTION_CHAMBER
         )
     ).associateBy { it.upgrade }
 

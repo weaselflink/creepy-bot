@@ -18,14 +18,17 @@ class BuildOrder(
         TrainUnit(Units.ZERG_OVERLORD, 2),
         BuildStructure(Units.ZERG_SPAWNING_POOL),
         DroneUp(16),
-        TrainUnit(Units.ZERG_OVERLORD, 3),
         BuildStructure(Units.ZERG_EXTRACTOR),
+        TrainUnit(Units.ZERG_OVERLORD, 3),
         TrainUnit(Units.ZERG_QUEEN, 1),
         DroneUp(19),
         ResearchUpgrade(Upgrades.ZERGLING_MOVEMENT_SPEED),
         BuildStructure(Units.ZERG_HATCHERY, 2),
+        BuildStructure(Units.ZERG_EVOLUTION_CHAMBER),
         KeepTraining(Units.ZERG_ZERGLING),
-        KeepSupplied()
+        KeepSupplied(),
+        ResearchUpgrade(Upgrades.ZERG_GROUND_ARMORS_LEVEL1),
+        ResearchUpgrade(Upgrades.ZERG_MELEE_WEAPONS_LEVEL1)
     )
 
     override fun onStep() {
