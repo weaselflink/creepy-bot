@@ -2,7 +2,7 @@ package de.stefanbissell.bots.creepy
 
 import com.github.ocraft.s2client.protocol.data.Abilities
 import com.github.ocraft.s2client.protocol.debug.Color
-import com.github.ocraft.s2client.protocol.unit.Unit
+import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
 class WorkerManager(
     private val zergBot: ZergBot,
@@ -50,12 +50,12 @@ class WorkerManager(
         }
     }
 
-    private fun debugText(worker: Unit, text: String) {
+    private fun debugText(worker: S2Unit, text: String) {
         zergBot.debug()
             .debugTextOut(text, worker.position, Color.WHITE, 12)
     }
 
-    private fun Unit.backToWork() {
+    private fun S2Unit.backToWork() {
         val closestMinerals = closestMineralsNearBase() ?: closestMinerals()
         closestMinerals
             ?.also {
@@ -64,11 +64,11 @@ class WorkerManager(
             }
     }
 
-    private fun Unit.closestMinerals() =
+    private fun S2Unit.closestMinerals() =
         zergBot.mineralFields
             .closestTo(this)
 
-    private fun Unit.closestMineralsNearBase() =
+    private fun S2Unit.closestMineralsNearBase() =
         bases.currentBases
             .flatMap {
                 it.mineralFields
