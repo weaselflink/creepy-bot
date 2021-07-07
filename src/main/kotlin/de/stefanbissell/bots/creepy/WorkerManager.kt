@@ -40,9 +40,7 @@ class WorkerManager(
                 .randomOrNull()
                 ?.also { worker ->
                     underSaturatedExtractors
-                        .minByOrNull {
-                            it.position.distance(worker.position)
-                        }
+                        .closestTo(worker)
                         ?.also {
                             zergBot.actions()
                                 .unitCommand(worker, Abilities.HARVEST_GATHER_DRONE, it, false)
@@ -68,16 +66,12 @@ class WorkerManager(
 
     private fun Unit.closestMinerals() =
         zergBot.mineralFields
-            .minByOrNull {
-                it.position.distance(position)
-            }
+            .closestTo(this)
 
     private fun Unit.closestMineralsNearBase() =
         bases.currentBases
             .flatMap {
                 it.mineralFields
             }
-            .minByOrNull {
-                it.position.distance(position)
-            }
+            .closestTo(this)
 }

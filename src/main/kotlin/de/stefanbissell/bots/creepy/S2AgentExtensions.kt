@@ -1,6 +1,7 @@
 package de.stefanbissell.bots.creepy
 
 import com.github.ocraft.s2client.protocol.spatial.Point
+import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
 fun Point.towards(to: Point, distance: Float): Point {
     val dir = to.sub(this)
@@ -10,3 +11,6 @@ fun Point.towards(to: Point, distance: Float): Point {
     }
     return this.add(dir.div(dist).mul(distance))
 }
+
+fun List<S2Unit>.closestTo(unit: S2Unit) =
+    minByOrNull { it.position.distance(unit.position) }
