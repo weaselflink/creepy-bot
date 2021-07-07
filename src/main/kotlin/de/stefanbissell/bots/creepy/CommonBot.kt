@@ -148,4 +148,7 @@ val List<Unit>.idle
     get() = filter { it.orders.isEmpty() }
 
 val List<Unit>.ready
-    get() = filter { it.buildProgress == 1f }
+    get() = filter { it.isReady }
+
+val Unit.isReady
+    get() = buildProgress == 1f

@@ -62,7 +62,10 @@ class Base(
     val position: Point
 ) {
 
-    private val building
+    val isReady
+        get() = building?.isReady ?: false
+
+    val building
         get() = zergBot
             .ownUnits
             .firstOrNull {

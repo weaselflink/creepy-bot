@@ -30,11 +30,13 @@ class WorkerManager(
 
         val basesWithSurplus = bases.currentBases
             .filter {
-                it.workerCount > it.optimalWorkerCount + 3
+                it.isReady &&
+                    it.workerCount > it.optimalWorkerCount + 3
             }
         val basesWithNeed = bases.currentBases
             .filter {
-                it.workerCount < it.optimalWorkerCount
+                it.isReady &&
+                    it.workerCount < it.optimalWorkerCount
             }
 
         if (basesWithNeed.isNotEmpty() && basesWithSurplus.isNotEmpty()) {
