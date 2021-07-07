@@ -9,6 +9,8 @@ class WorkerManager(
     private val bases: Bases
 ) : BotComponent {
 
+    private val prioritizeGas = true
+
     override fun onStep() {
         zergBot.workers
             .idle
@@ -32,10 +34,11 @@ class WorkerManager(
             }
 
         val underSaturatedExtractors = zergBot.ownVespeneBuildings
+            .ready
             .filter {
                 it.assignedHarvesters.orElse(0) < 3
             }
-        if (mineralWorkers.size > 16 && underSaturatedExtractors.isNotEmpty()) {
+        if (underSaturatedExtractors.isNotEmpty() && (prioritizeGas || mineralWorkers.size < 16)) {
             mineralWorkers
                 .randomOrNull()
                 ?.also { worker ->

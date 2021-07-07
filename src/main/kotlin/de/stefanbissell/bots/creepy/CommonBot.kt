@@ -142,3 +142,6 @@ fun List<Unit>.ofTypes(types: List<UnitType>) =
 
 val List<Unit>.idle
     get() = filter { it.orders.isEmpty() }
+
+val List<Unit>.ready
+    get() = filter { it.buildProgress == 1f }
