@@ -2,6 +2,8 @@ package de.stefanbissell.bots.creepy
 
 import com.github.ocraft.s2client.protocol.data.UnitType
 import com.github.ocraft.s2client.protocol.data.Units
+import com.github.ocraft.s2client.protocol.data.Upgrade
+import com.github.ocraft.s2client.protocol.data.Upgrades
 import com.github.ocraft.s2client.protocol.spatial.Point
 import kotlin.random.Random
 
@@ -19,7 +21,8 @@ class BuildOrder(
         TrainUnit(Units.ZERG_OVERLORD, 3),
         BuildStructure(Units.ZERG_EXTRACTOR),
         TrainUnit(Units.ZERG_QUEEN, 1),
-        DroneUp(20),
+        DroneUp(19),
+        ResearchUpgrade(Upgrades.ZERGLING_MOVEMENT_SPEED),
         BuildStructure(Units.ZERG_HATCHERY, 2),
         KeepTraining(Units.ZERG_ZERGLING),
         KeepSupplied()
@@ -129,6 +132,21 @@ data class KeepTraining(
     override fun tryExecute(buildOrder: BuildOrder): Boolean {
         buildOrder.zergBot.trainUnit(type)
         return true
+    }
+}
+
+data class ResearchUpgrade(
+    val upgrade: Upgrade
+) : BuildOrderStep() {
+    override fun tryExecute(buildOrder: BuildOrder): Boolean {
+        if (buildOrder.zergBot.isCompleted(upgrade)) {
+            return true
+        }
+        if (buildOrder.zergBot.isPending(upgrade)) {
+            return true
+        }
+        buildOrder.zergBot.tryResearchUpgrade(upgrade)
+        return false
     }
 }
 

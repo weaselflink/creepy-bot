@@ -1,8 +1,11 @@
 package de.stefanbissell.bots.creepy
 
 import com.github.ocraft.s2client.protocol.data.Abilities
+import com.github.ocraft.s2client.protocol.data.Ability
 import com.github.ocraft.s2client.protocol.data.UnitType
 import com.github.ocraft.s2client.protocol.data.Units
+import com.github.ocraft.s2client.protocol.data.Upgrade
+import com.github.ocraft.s2client.protocol.data.Upgrades
 import com.github.ocraft.s2client.protocol.spatial.Point
 import com.github.ocraft.s2client.protocol.unit.Unit
 
@@ -27,6 +30,19 @@ open class ZergBot : CommonBot() {
         Units.ZERG_OVERLORD to Abilities.TRAIN_OVERLORD,
         Units.ZERG_ZERGLING to Abilities.TRAIN_ZERGLING
     )
+
+    private val upgrades = listOf(
+        UpgradeData(
+            Upgrades.ZERGLING_MOVEMENT_SPEED,
+            Abilities.RESEARCH_ZERGLING_METABOLIC_BOOST,
+            Units.ZERG_SPAWNING_POOL
+        ),
+        UpgradeData(
+            Upgrades.ZERGLING_ATTACK_SPEED,
+            Abilities.RESEARCH_ZERGLING_ADRENAL_GLANDS,
+            Units.ZERG_SPAWNING_POOL
+        )
+    ).associateBy { it.upgrade }
 
     val workers
         get() = ownUnits
@@ -148,6 +164,31 @@ open class ZergBot : CommonBot() {
             )
     }
 
+    fun isPending(upgrade: Upgrade): Boolean {
+        val upgradeData = upgrades[upgrade] ?: return false
+        return ownUnits
+            .ofType(upgradeData.unitType)
+            .flatMap { it.orders }
+            .any { it.ability == upgradeData.ability }
+    }
+
+    fun tryResearchUpgrade(upgrade: Upgrade) {
+        val upgradeData = upgrades[upgrade] ?: return
+        val building = ownUnits
+            .ofType(upgradeData.unitType)
+            .filter {
+                canCast(it, upgradeData.ability, false)
+            }
+            .randomOrNull()
+            ?: return
+        actions()
+            .unitCommand(
+                building,
+                upgradeData.ability,
+                false
+            )
+    }
+
     private fun canAfford(unitType: UnitType) = canAfford(cost(unitType))
 
     private fun canAfford(cost: Cost?): Boolean {
@@ -172,4 +213,10 @@ data class Cost(
     val supply: Float,
     val minerals: Int,
     val vespene: Int
+)
+
+data class UpgradeData(
+    val upgrade: Upgrade,
+    val ability: Ability,
+    val unitType: UnitType
 )

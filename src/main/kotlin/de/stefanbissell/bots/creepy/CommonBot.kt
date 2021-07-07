@@ -9,6 +9,8 @@ import com.github.ocraft.s2client.protocol.unit.UnitOrder
 
 open class CommonBot : S2Agent() {
 
+    private val completedUpgrades = mutableSetOf<Upgrade>()
+
     private val mineralBuffs = listOf(
         Buffs.CARRY_MINERAL_FIELD_MINERALS,
         Buffs.CARRY_HIGH_YIELD_MINERAL_FIELD_MINERALS
@@ -74,6 +76,12 @@ open class CommonBot : S2Agent() {
     val gameTime
         get() = GameTime(observation().gameLoop)
 
+    override fun onUpgradeCompleted(upgrade: Upgrade) {
+        completedUpgrades += upgrade
+    }
+
+    fun isCompleted(upgrade: Upgrade) =
+        upgrade in completedUpgrades
 
     fun canCast(
         unit: Unit,
