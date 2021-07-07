@@ -14,6 +14,10 @@ open class CommonBot : S2Agent() {
         Buffs.CARRY_HIGH_YIELD_MINERAL_FIELD_MINERALS
     )
 
+    private val vespeneBuffs = listOf(
+        Buffs.CARRY_HARVESTABLE_VESPENE_GEYSER_GAS
+    )
+
     private val mineralFieldTypes = listOf(
         Units.NEUTRAL_MINERAL_FIELD, Units.NEUTRAL_MINERAL_FIELD750,
         Units.NEUTRAL_RICH_MINERAL_FIELD, Units.NEUTRAL_RICH_MINERAL_FIELD750,
@@ -21,6 +25,12 @@ open class CommonBot : S2Agent() {
         Units.NEUTRAL_PURIFIER_RICH_MINERAL_FIELD, Units.NEUTRAL_PURIFIER_RICH_MINERAL_FIELD750,
         Units.NEUTRAL_LAB_MINERAL_FIELD, Units.NEUTRAL_LAB_MINERAL_FIELD750,
         Units.NEUTRAL_BATTLE_STATION_MINERAL_FIELD, Units.NEUTRAL_BATTLE_STATION_MINERAL_FIELD750
+    )
+
+    private val vespeneBuildingTypes = listOf(
+        Units.ZERG_EXTRACTOR, Units.ZERG_EXTRACTOR_RICH,
+        Units.TERRAN_REFINERY, Units.TERRAN_REFINERY_RICH,
+        Units.PROTOSS_ASSIMILATOR, Units.PROTOSS_ASSIMILATOR_RICH
     )
 
     private val vespeneGeyserTypes = listOf(
@@ -57,6 +67,10 @@ open class CommonBot : S2Agent() {
             .getUnits(Alliance.SELF)
             .asUnits()
 
+    val ownVespeneBuildings
+        get() = ownUnits
+            .ofTypes(vespeneBuildingTypes)
+
     val gameTime
         get() = GameTime(observation().gameLoop)
 
@@ -72,14 +86,20 @@ open class CommonBot : S2Agent() {
             .map { it.ability }
             .contains(ability)
 
-    fun isHarvestingMinerals(unit: Unit): Boolean {
+    fun isHarvestingMinerals(unit: Unit) =
+        isHarvesting(unit, mineralFieldTypes, mineralBuffs)
+
+    fun isHarvestingVespene(unit: Unit) =
+        isHarvesting(unit, vespeneBuildingTypes, vespeneBuffs)
+
+    private fun isHarvesting(unit: Unit, targets: List<UnitType>, buffs: List<Buffs>): Boolean {
         val gatherOrder = unit.orderOfType(Abilities.HARVEST_GATHER)
         if (gatherOrder != null) {
-            return gatherOrder.targetUnit()?.type in mineralFieldTypes
+            return gatherOrder.targetUnit()?.type in targets
         }
         val returnOrder = unit.orderOfType(Abilities.HARVEST_RETURN)
         if (returnOrder != null) {
-            return unit.buffs.intersect(mineralBuffs).isNotEmpty()
+            return unit.buffs.intersect(buffs).isNotEmpty()
         }
         return false
     }

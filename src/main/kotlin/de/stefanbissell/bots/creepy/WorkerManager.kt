@@ -1,10 +1,8 @@
 package de.stefanbissell.bots.creepy
 
 import com.github.ocraft.s2client.protocol.data.Abilities
-import com.github.ocraft.s2client.protocol.data.Buffs
 import com.github.ocraft.s2client.protocol.debug.Color
 import com.github.ocraft.s2client.protocol.unit.Unit
-import com.github.ocraft.s2client.protocol.unit.UnitOrder
 
 class WorkerManager(
     private val zergBot: ZergBot,
@@ -18,12 +16,40 @@ class WorkerManager(
                 it.backToWork()
             }
 
-        zergBot.workers
-            .forEach { worker ->
-                if (zergBot.isHarvestingMinerals(worker)) {
-                    debugText(worker, "minerals")
-                }
+        val mineralWorkers = zergBot.workers
+            .filter {
+                zergBot.isHarvestingMinerals(it)
             }
+            .onEach {
+                debugText(it, "minerals")
+            }
+        zergBot.workers
+            .filter {
+                zergBot.isHarvestingVespene(it)
+            }
+            .onEach {
+                debugText(it, "vespene")
+            }
+
+        val underSaturatedExtractors = zergBot.ownVespeneBuildings
+            .filter {
+                it.assignedHarvesters.orElse(0) < 3
+            }
+        if (mineralWorkers.size > 16 && underSaturatedExtractors.isNotEmpty()) {
+            mineralWorkers
+                .randomOrNull()
+                ?.also { worker ->
+                    underSaturatedExtractors
+                        .minByOrNull {
+                            it.position.distance(worker.position)
+                        }
+                        ?.also {
+                            zergBot.actions()
+                                .unitCommand(worker, Abilities.HARVEST_GATHER_DRONE, it, false)
+                        }
+
+                }
+        }
     }
 
     private fun debugText(worker: Unit, text: String) {
