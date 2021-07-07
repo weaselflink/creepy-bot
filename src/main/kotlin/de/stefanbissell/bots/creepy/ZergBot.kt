@@ -52,6 +52,18 @@ open class ZergBot : CommonBot() {
             Upgrades.ZERG_MELEE_WEAPONS_LEVEL1,
             Abilities.RESEARCH_ZERG_MELEE_WEAPONS,
             Units.ZERG_EVOLUTION_CHAMBER
+        ),
+        UpgradeData(
+            Upgrades.ZERG_GROUND_ARMORS_LEVEL2,
+            Abilities.RESEARCH_ZERG_GROUND_ARMOR,
+            Units.ZERG_EVOLUTION_CHAMBER,
+            Upgrades.ZERG_GROUND_ARMORS_LEVEL1
+        ),
+        UpgradeData(
+            Upgrades.ZERG_MELEE_WEAPONS_LEVEL2,
+            Abilities.RESEARCH_ZERG_MELEE_WEAPONS,
+            Units.ZERG_EVOLUTION_CHAMBER,
+            Upgrades.ZERG_MELEE_WEAPONS_LEVEL1
         )
     ).associateBy { it.upgrade }
 
@@ -177,7 +189,11 @@ open class ZergBot : CommonBot() {
     }
 
     fun isPending(upgrade: Upgrade): Boolean {
+        if (isCompleted(upgrade)) return false
         val upgradeData = upgrades[upgrade] ?: return false
+        if (upgradeData.after != null && !isCompleted(upgradeData.after)) {
+            return false
+        }
         return ownUnits
             .ofType(upgradeData.unitType)
             .flatMap { it.orders }
@@ -231,5 +247,6 @@ data class Cost(
 data class UpgradeData(
     val upgrade: Upgrade,
     val ability: Ability,
-    val unitType: UnitType
+    val unitType: UnitType,
+    val after: Upgrade? = null
 )
