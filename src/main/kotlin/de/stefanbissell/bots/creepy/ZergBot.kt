@@ -111,6 +111,7 @@ open class ZergBot : CommonBot() {
                     .filter {
                         canCast(it, ability, false)
                     }
+                    .idle
                     .randomOrNull()
                     ?.also {
                         actions()
@@ -187,6 +188,7 @@ open class ZergBot : CommonBot() {
         val upgradeData = upgrades[upgrade] ?: return
         val building = ownUnits
             .ofType(upgradeData.unitType)
+            .idle
             .filter {
                 canCast(it, upgradeData.ability, false)
             }
