@@ -4,5 +4,6 @@ data class GameTime(
     val loop: Long
 ) {
 
-    val exactMinutes: Double = (loop / 22.4) / 60.0
+    val exactSeconds: Double = (loop / 22.4)
+    val exactMinutes: Double = exactSeconds / 60.0
 }

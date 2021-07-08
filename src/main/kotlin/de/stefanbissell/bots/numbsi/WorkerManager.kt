@@ -10,24 +10,19 @@ class WorkerManager(
 ) : BotComponent {
 
     private val prioritizeGas = true
+    private var lastRebalance = 0.0
 
     override fun onStep() {
-        zergBot.workers
-            .idle
-            .forEach {
-                it.backToWork()
-            }
+        sendIdleToWork()
+        debugWorkerJobs()
+        val seconds = zergBot.gameTime.exactSeconds
+        if (seconds - lastRebalance > 1) {
+            lastRebalance = seconds
+            rebalanceWorkers()
+        }
+    }
 
-        zergBot.workers
-            .forEach {
-                if (zergBot.isHarvestingMinerals(it)) {
-                    debugText(it, "minerals")
-                }
-                if (zergBot.isHarvestingVespene(it)) {
-                    debugText(it, "vespene")
-                }
-            }
-
+    private fun rebalanceWorkers() {
         val basesWithSurplus = bases.currentBases
             .filter {
                 it.isReady &&
@@ -87,6 +82,26 @@ class WorkerManager(
                     }
                 }
         }
+    }
+
+    private fun sendIdleToWork() {
+        zergBot.workers
+            .idle
+            .forEach {
+                it.backToWork()
+            }
+    }
+
+    private fun debugWorkerJobs() {
+        zergBot.workers
+            .forEach {
+                if (zergBot.isHarvestingMinerals(it)) {
+                    debugText(it, "minerals")
+                }
+                if (zergBot.isHarvestingVespene(it)) {
+                    debugText(it, "vespene")
+                }
+            }
     }
 
     private fun debugText(worker: S2Unit, text: String) {
