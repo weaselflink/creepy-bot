@@ -21,6 +21,12 @@ open class ZergBot : CommonBot() {
         Units.ZERG_DRONE
     )
 
+    private val combatTypes = listOf(
+        Units.ZERG_ZERGLING,
+        Units.ZERG_ROACH,
+        Units.ZERG_HYDRALISK
+    )
+
     private val trainingAbilities = mapOf(
         Units.ZERG_HATCHERY to Abilities.BUILD_HATCHERY,
         Units.ZERG_SPAWNING_POOL to Abilities.BUILD_SPAWNING_POOL,
@@ -68,10 +74,10 @@ open class ZergBot : CommonBot() {
     ).associateBy { it.upgrade }
 
     val workers
-        get() = ownUnits
-            .filter {
-                it.type in workerTypes
-            }
+        get() = ownUnits.ofTypes(workerTypes)
+
+    val ownCombatUnits
+        get() = ownUnits.ofTypes(combatTypes)
 
     private val idleLarva
         get() = ownUnits

@@ -10,8 +10,8 @@ class Attacker(
 
     override fun onStep() {
         if (enoughTroops()) {
-            zergBot.ownUnits
-                .ofType(Units.ZERG_ZERGLING)
+            zergBot
+                .ownCombatUnits
                 .idle
                 .forEach {
                     zergBot.actions()
