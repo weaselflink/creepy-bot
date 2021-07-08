@@ -1,6 +1,6 @@
 @file:Suppress("LocalVariableName")
 
-rootProject.name = "creepy-bot"
+rootProject.name = "numbsi-bot"
 
 pluginManagement {
     val kotlin_version: String by settings
