@@ -14,3 +14,6 @@ fun Point.towards(to: Point, distance: Float): Point {
 
 fun List<S2Unit>.closestTo(unit: S2Unit) =
     minByOrNull { it.position.distance(unit.position) }
+
+fun List<S2Unit>.closerThan(unit: S2Unit, distance: Float) =
+    filter { it.position.distance(unit.position) < distance }

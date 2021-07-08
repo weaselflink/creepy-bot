@@ -26,6 +26,9 @@ class BuildOrder(
         BuildStructure(Units.ZERG_HATCHERY, 2),
         BuildStructure(Units.ZERG_EVOLUTION_CHAMBER),
         DroneUp(25),
+        Conditional(TrainUnit(Units.ZERG_QUEEN, 2)) {
+            it.zergBot.baseBuildings.ready.count() >= 2
+        },
         KeepTraining(Units.ZERG_ZERGLING),
         KeepSupplied(),
         ResearchUpgrade(Upgrades.ZERG_GROUND_ARMORS_LEVEL1),
@@ -163,5 +166,17 @@ data class KeepSupplied(val minOverlords: Int = 3) : BuildOrderStep() {
             buildOrder.zergBot.trainUnit(Units.ZERG_OVERLORD)
         }
         return true
+    }
+}
+
+data class Conditional(
+    val step: BuildOrderStep,
+    val condition: (BuildOrder) -> Boolean
+) : BuildOrderStep() {
+    override fun tryExecute(buildOrder: BuildOrder): Boolean {
+        if (!condition(buildOrder)) {
+            return false
+        }
+        return step.tryExecute(buildOrder)
     }
 }

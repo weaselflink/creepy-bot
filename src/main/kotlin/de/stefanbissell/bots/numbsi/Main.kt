@@ -13,7 +13,7 @@ fun main(args: Array<String>) {
         .loadSettings(args)
         .setParticipants(
             S2Coordinator.createParticipant(Race.ZERG, bot),
-            S2Coordinator.createComputer(Race.TERRAN, Difficulty.MEDIUM)
+            S2Coordinator.createComputer(Race.TERRAN, Difficulty.MEDIUM_HARD)
         )
         .launchStarcraft()
         .startGame(LocalMap.of(Path("LightShadeAIE.SC2Map")))

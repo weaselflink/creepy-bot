@@ -125,11 +125,21 @@ open class ZergBot : CommonBot() {
     private fun trainQueen() {
         trainingAbilities[Units.ZERG_QUEEN]
             ?.also { ability ->
-                baseBuildings
+                val queens = ownUnits
+                    .ofType(Units.ZERG_QUEEN)
+                val idleBases = baseBuildings
                     .filter {
                         canCast(it, ability, false)
                     }
                     .idle
+                val idleBasesWithoutQueen = idleBases
+                    .filter { idleBase ->
+                        queens
+                            .closerThan(idleBase, 9f)
+                            .isEmpty()
+                    }
+                idleBasesWithoutQueen
+                    .ifEmpty { idleBases }
                     .randomOrNull()
                     ?.also {
                         actions()
@@ -228,9 +238,9 @@ open class ZergBot : CommonBot() {
 
     private fun canAfford(cost: Cost?): Boolean {
         return cost != null &&
-            cost.supply <= supplyLeft &&
-            cost.minerals <= observation().minerals &&
-            cost.vespene <= observation().vespene
+                cost.supply <= supplyLeft &&
+                cost.minerals <= observation().minerals &&
+                cost.vespene <= observation().vespene
     }
 
     private fun cost(unitType: UnitType) =
