@@ -7,13 +7,12 @@ import com.github.ocraft.s2client.protocol.game.Race
 import kotlin.io.path.Path
 
 fun main(args: Array<String>) {
-    val bot = NumbsiBot()
     val s2Coordinator = S2Coordinator
         .setup()
         .setRealtime(false)
         .loadSettings(args)
         .setParticipants(
-            S2Coordinator.createParticipant(Race.ZERG, bot),
+            S2Coordinator.createParticipant(Race.ZERG, NumbsiBot()),
             S2Coordinator.createComputer(Race.TERRAN, Difficulty.MEDIUM_HARD)
         )
         .launchStarcraft()
