@@ -1,6 +1,5 @@
 package de.stefanbissell.bots.numbsi
 
-import com.github.ocraft.s2client.bot.S2Agent
 import com.github.ocraft.s2client.protocol.data.Units
 import com.github.ocraft.s2client.protocol.spatial.Point
 import com.github.ocraft.s2client.protocol.spatial.Point2d
@@ -9,11 +8,11 @@ import java.lang.Float.max
 import java.lang.Float.min
 
 class GameMap(
-    private val sc2Agent: S2Agent
+    private val zergBot: ZergBot,
 ) : BotComponent {
 
     private val startRaw by lazy {
-        sc2Agent.observation().gameInfo.startRaw.get()
+        zergBot.observation().gameInfo.startRaw.get()
     }
     lateinit var expansions: List<Point>
     lateinit var ownStart: Point2d
@@ -24,15 +23,15 @@ class GameMap(
     val center: Point by lazy { Point.of(width / 2f, height / 2f) }
 
     override fun onGameStart() {
-        expansions = sc2Agent.query()
-            .calculateExpansionLocations(sc2Agent.observation())
-        ownStart = sc2Agent.observation()
+        expansions = zergBot.query()
+            .calculateExpansionLocations(zergBot.observation())
+        ownStart = zergBot.observation()
             .getUnits(Alliance.SELF) { it.unit().type == Units.ZERG_HATCHERY }
             .map { it.unit() }
             .first()
             .position
             .toPoint2d()
-        enemyStart = sc2Agent.observation()
+        enemyStart = zergBot.observation()
             .gameInfo.startRaw.get()
             .startLocations
             .first {
