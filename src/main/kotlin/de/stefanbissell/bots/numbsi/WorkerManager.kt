@@ -26,7 +26,7 @@ class WorkerManager(
         val basesWithSurplus = bases.currentBases
             .filter {
                 it.isReady &&
-                    it.workerCount > it.optimalWorkerCount + 3
+                    it.workerCount > it.optimalWorkerCount + 1
             }
         val basesWithNeed = bases.currentBases
             .filter {
