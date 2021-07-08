@@ -16,7 +16,7 @@ fun main(args: Array<String>) {
             S2Coordinator.createComputer(Race.TERRAN, Difficulty.MEDIUM)
         )
         .launchStarcraft()
-        .startGame(LocalMap.of(Path("EphemeronLE.SC2Map")))
+        .startGame(LocalMap.of(Path("LightShadeAIE.SC2Map")))
 
     while (s2Coordinator.update()) {
         // nothing
