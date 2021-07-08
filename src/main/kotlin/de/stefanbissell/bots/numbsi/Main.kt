@@ -8,7 +8,8 @@ import kotlin.io.path.Path
 
 fun main(args: Array<String>) {
     val bot = NumbsiBot()
-    val s2Coordinator = S2Coordinator.setup()
+    val s2Coordinator = S2Coordinator
+        .setup()
         .setRealtime(false)
         .loadSettings(args)
         .setParticipants(

@@ -7,14 +7,20 @@ val kodein_version: String by project
 val junit_version: String by project
 val strikt_version: String by project
 
+group = "de.stefanbissell.numbsi"
+version = "0.1"
+
 plugins {
+    application
     kotlin("jvm")
     id("com.github.ben-manes.versions")
+    id("com.github.johnrengelman.shadow")
     id("com.adarshr.test-logger")
 }
 
-group = "de.stefanbissell.numbsi"
-version = "0.1"
+application {
+    mainClass.set("de.stefanbissell.bots.numbsi.MainKt")
+}
 
 repositories {
     mavenCentral()
@@ -31,6 +37,23 @@ dependencies {
 tasks {
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "11"
+    }
+
+    jar {
+        enabled = false
+    }
+
+    shadowJar {
+        manifest {
+            attributes(
+                mapOf(
+                    "Main-Class" to application.mainClass.get()
+                )
+            )
+        }
+        archiveBaseName.set(rootProject.name)
+        archiveClassifier.set("")
+        archiveVersion.set("")
     }
 
     test {
