@@ -5,7 +5,7 @@ plugins {
     id("com.github.ben-manes.versions")
 }
 
-group = "de.stefanbissell.creepy"
+group = "de.stefanbissell.numbsi"
 version = "0.1"
 
 repositories {

@@ -1,4 +1,4 @@
-package de.stefanbissell.bots.creepy
+package de.stefanbissell.bots.numbsi
 
 import com.github.ocraft.s2client.bot.ClientEvents
 import org.kodein.di.DI
@@ -7,10 +7,10 @@ import org.kodein.di.bind
 import org.kodein.di.instance
 import org.kodein.di.singleton
 
-class CreepyBot : ZergBot() {
+class NumbsiBot : ZergBot() {
 
     private val di = DI {
-        bind { instance(this@CreepyBot) }
+        bind { instance(this@NumbsiBot) }
         bind { singleton { GameMap(instance()) } }
         bind { singleton { Bases(instance()) } }
         bind { singleton { FriendlyChat(instance()) } }

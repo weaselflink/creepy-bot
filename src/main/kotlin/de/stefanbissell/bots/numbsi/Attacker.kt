@@ -1,4 +1,4 @@
-package de.stefanbissell.bots.creepy
+package de.stefanbissell.bots.numbsi
 
 import com.github.ocraft.s2client.protocol.data.Abilities
 import com.github.ocraft.s2client.protocol.data.Units

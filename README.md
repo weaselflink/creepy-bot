@@ -1,4 +1,4 @@
-# CreepyBot
+# NumbsiBot
 
 * Zerg bot
 * written in Kotlin

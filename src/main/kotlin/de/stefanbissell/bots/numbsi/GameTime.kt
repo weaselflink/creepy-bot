@@ -1,4 +1,4 @@
-package de.stefanbissell.bots.creepy
+package de.stefanbissell.bots.numbsi
 
 data class GameTime(
     val loop: Long

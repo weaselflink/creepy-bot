@@ -1,6 +1,5 @@
-package de.stefanbissell.bots.creepy
+package de.stefanbissell.bots.numbsi
 
-import com.github.ocraft.s2client.bot.ClientEvents
 import com.github.ocraft.s2client.protocol.action.ActionChat
 
 class FriendlyChat(
