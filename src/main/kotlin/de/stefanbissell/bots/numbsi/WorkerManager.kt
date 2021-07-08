@@ -95,18 +95,30 @@ class WorkerManager(
     private fun debugWorkerJobs() {
         zergBot.workers
             .forEach {
-                if (zergBot.isHarvestingMinerals(it)) {
-                    debugText(it, "minerals")
-                }
-                if (zergBot.isHarvestingVespene(it)) {
-                    debugText(it, "vespene")
+                when {
+                    zergBot.isHarvestingMinerals(it) -> {
+                        debugText(it, "minerals")
+                    }
+                    zergBot.isHarvestingVespene(it) -> {
+                        debugText(it, "vespene")
+                    }
+                    zergBot.isBuilding(it) -> {
+                        debugText(it, "building", Color.GREEN)
+                    }
+                    else -> {
+                        debugText(it, "unknown", Color.RED)
+                    }
                 }
             }
     }
 
-    private fun debugText(worker: S2Unit, text: String) {
+    private fun debugText(
+        worker: S2Unit,
+        text: String,
+        color: Color = Color.WHITE
+    ) {
         zergBot.debug()
-            .debugTextOut(text, worker.position, Color.WHITE, 12)
+            .debugTextOut(text, worker.position, color, 12)
     }
 
     private fun S2Unit.backToWork() {

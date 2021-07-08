@@ -90,6 +90,14 @@ open class ZergBot : CommonBot() {
                 it.type in baseTypes
             }
 
+
+    fun isBuilding(unit: Unit): Boolean {
+        return unit
+            .orders
+            .map { it.ability }
+            .any { it in trainingAbilities.values }
+    }
+
     fun pendingCount(type: UnitType): Int {
         return trainingAbilities[type]
             ?.let { ability ->

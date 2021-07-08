@@ -17,7 +17,9 @@ open class CommonBot : S2Agent() {
     )
 
     private val vespeneBuffs = listOf(
-        Buffs.CARRY_HARVESTABLE_VESPENE_GEYSER_GAS
+        Buffs.CARRY_HARVESTABLE_VESPENE_GEYSER_GAS,
+        Buffs.CARRY_HARVESTABLE_VESPENE_GEYSER_GAS_PROTOSS,
+        Buffs.CARRY_HARVESTABLE_VESPENE_GEYSER_GAS_ZERG
     )
 
     private val mineralFieldTypes = listOf(
