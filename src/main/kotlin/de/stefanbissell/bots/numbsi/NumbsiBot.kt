@@ -8,7 +8,7 @@ import org.kodein.di.instance
 import org.kodein.di.singleton
 
 class NumbsiBot(
-    val showDebug: Boolean = false
+    private val showDebug: Boolean = false
 ) : ZergBot() {
 
     private val di = DI {
