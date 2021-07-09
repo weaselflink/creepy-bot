@@ -39,6 +39,13 @@ tasks {
         kotlinOptions.jvmTarget = "11"
     }
 
+    val botZip = register<Zip>("botZip") {
+        archiveFileName.set("${rootProject.name}.zip")
+        destinationDirectory.set(layout.buildDirectory.dir("dist"))
+
+        from(layout.buildDirectory.dir("libs"))
+    }
+
     jar {
         enabled = false
     }
@@ -54,6 +61,8 @@ tasks {
         archiveBaseName.set(rootProject.name)
         archiveClassifier.set("")
         archiveVersion.set("")
+
+        finalizedBy(botZip)
     }
 
     test {
@@ -71,16 +80,7 @@ tasks {
         enabled = false
     }
 
-    val botZip = register<Zip>("botZip") {
-        archiveFileName.set("${rootProject.name}.zip")
-        destinationDirectory.set(layout.buildDirectory.dir("dist"))
-
-        from(layout.buildDirectory.dir("libs"))
-    }
-
     shadowDistZip {
         enabled = false
-
-        finalizedBy(botZip)
     }
 }
