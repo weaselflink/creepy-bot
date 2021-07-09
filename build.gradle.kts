@@ -7,7 +7,7 @@ val kodein_version: String by project
 val junit_version: String by project
 val strikt_version: String by project
 
-group = "de.stefanbissell.numbsi"
+group = "de.stefanbissell.bots.numbsi"
 version = "0.1"
 
 plugins {
