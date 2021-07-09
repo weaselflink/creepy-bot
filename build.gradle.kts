@@ -62,4 +62,25 @@ tasks {
             events("passed", "skipped", "failed")
         }
     }
+
+    withType<Tar> {
+        enabled = false
+    }
+
+    distZip {
+        enabled = false
+    }
+
+    val botZip = register<Zip>("botZip") {
+        archiveFileName.set("${rootProject.name}.zip")
+        destinationDirectory.set(layout.buildDirectory.dir("dist"))
+
+        from(layout.buildDirectory.dir("libs"))
+    }
+
+    shadowDistZip {
+        enabled = false
+
+        finalizedBy(botZip)
+    }
 }
