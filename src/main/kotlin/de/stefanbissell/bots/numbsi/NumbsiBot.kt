@@ -7,7 +7,9 @@ import org.kodein.di.bind
 import org.kodein.di.instance
 import org.kodein.di.singleton
 
-class NumbsiBot : ZergBot() {
+class NumbsiBot(
+    val showDebug: Boolean = false
+) : ZergBot() {
 
     private val di = DI {
         bind { instance(this@NumbsiBot) }
@@ -31,7 +33,9 @@ class NumbsiBot : ZergBot() {
             it.onStep()
         }
 
-        debug().sendDebug()
+        if (showDebug) {
+            debug().sendDebug()
+        }
     }
 }
 
