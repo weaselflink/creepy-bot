@@ -7,6 +7,15 @@ import com.github.ocraft.s2client.protocol.game.Race
 import kotlin.io.path.Path
 
 fun main(args: Array<String>) {
+    val maps = listOf(
+        "2000AtmospheresAIE.SC2Map",
+        "BlackburnAIE.SC2Map",
+        "JagannathaAIE.SC2Map",
+        "LightShadeAIE.SC2Map",
+        "OxideAIE.SC2Map",
+        "RomanticideAIE.SC2Map"
+    )
+
     val s2Coordinator = S2Coordinator
         .setup()
         .setRealtime(false)
@@ -16,7 +25,7 @@ fun main(args: Array<String>) {
             S2Coordinator.createComputer(Race.TERRAN, Difficulty.MEDIUM_HARD)
         )
         .launchStarcraft()
-        .startGame(LocalMap.of(Path("LightShadeAIE.SC2Map")))
+        .startGame(LocalMap.of(Path(maps.random())))
 
     while (s2Coordinator.update()) {
         // nothing
