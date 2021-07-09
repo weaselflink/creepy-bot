@@ -9,11 +9,28 @@ class Attacker(
     private val gameMap: GameMap
 ) : BotComponent() {
 
+    private var enoughTroops = false
+
     override fun onStep(zergBot: ZergBot) {
-        if (enoughTroops(zergBot)) {
+        updateEnoughTroops(zergBot)
+        if (enoughTroops) {
             zergBot
                 .ownCombatUnits
                 .orderAttack(zergBot)
+        } else if (zergBot.ownCombatUnits.isNotEmpty()) {
+            val rallyPoint = zergBot
+                .ownCombatUnits
+                .map { it.position.toPoint2d() }
+                .reduce { acc, point -> acc.add(point) }
+                .div(zergBot.ownCombatUnits.count().toFloat())
+            zergBot
+                .ownCombatUnits
+                .forEach {
+                    if (it.position.distance(rallyPoint) > 5) {
+                        zergBot.actions()
+                            .unitCommand(it, Abilities.MOVE, rallyPoint, false)
+                    }
+                }
         }
     }
 
@@ -21,7 +38,7 @@ class Attacker(
         val enemies = zergBot.enemyUnits
             .filter {
                 !it.flying.orElse(true) &&
-                    it.cloakState.orElse(CloakState.CLOAKED_UNKNOWN) != CloakState.CLOAKED
+                        it.cloakState.orElse(CloakState.CLOAKED_UNKNOWN) != CloakState.CLOAKED
             }
         if (zergBot.observation().getVisibility(gameMap.enemyStart) == Visibility.HIDDEN) {
             idle.forEach {
@@ -52,10 +69,14 @@ class Attacker(
         }
     }
 
-    private fun enoughTroops(zergBot: ZergBot): Boolean {
+    private fun updateEnoughTroops(zergBot: ZergBot) {
         val troops = zergBot
             .ownCombatUnits
             .count()
-        return troops >= 40 || troops >= (zergBot.gameTime.exactMinutes * 5)
+        enoughTroops = if (enoughTroops) {
+            troops >= 30 || troops >= (zergBot.gameTime.exactMinutes * 3)
+        } else {
+            troops >= 40 || troops >= (zergBot.gameTime.exactMinutes * 5)
+        }
     }
 }
