@@ -1,5 +1,6 @@
 package de.stefanbissell.bots.numbsi
 
+import com.github.ocraft.s2client.protocol.data.Abilities
 import com.github.ocraft.s2client.protocol.data.UnitType
 import com.github.ocraft.s2client.protocol.data.Units
 import com.github.ocraft.s2client.protocol.data.Upgrade
@@ -26,13 +27,17 @@ class BuildOrder(
         BuildStructure(Units.ZERG_HATCHERY, 2),
         BuildStructure(Units.ZERG_EVOLUTION_CHAMBER),
         DroneUp(25),
-        Conditional(TrainUnit(Units.ZERG_QUEEN, 2)) {
-            it.zergBot.baseBuildings.ready.count() >= 2
-        },
         KeepTraining(Units.ZERG_ZERGLING),
         KeepSupplied(),
         ResearchUpgrade(Upgrades.ZERG_GROUND_ARMORS_LEVEL1),
-        ResearchUpgrade(Upgrades.ZERG_MELEE_WEAPONS_LEVEL1)
+        ResearchUpgrade(Upgrades.ZERG_MELEE_WEAPONS_LEVEL1),
+        BuildStructure(Units.ZERG_LAIR, 1),
+        Conditional(TrainUnit(Units.ZERG_QUEEN, 2)) {
+            it.zergBot.baseBuildings.ready.count() >= 2
+        },
+        Conditional(TrainUnit(Units.ZERG_QUEEN, 3)) {
+            it.zergBot.baseBuildings.ready.count() >= 3
+        }
     )
 
     override fun onStep() {
@@ -66,6 +71,19 @@ class BuildOrder(
                     }
                     ?.also {
                         zergBot.tryBuildStructure(type, it)
+                    }
+            }
+            Units.ZERG_LAIR -> {
+                zergBot
+                    .baseBuildings
+                    .ready
+                    .filter {
+                        zergBot.canCast(it, Abilities.MORPH_LAIR, false)
+                    }
+                    .closestTo(gameMap.ownStart)
+                    ?.also {
+                        zergBot.actions()
+                            .unitCommand(it, Abilities.MORPH_LAIR, false)
                     }
             }
             else -> {

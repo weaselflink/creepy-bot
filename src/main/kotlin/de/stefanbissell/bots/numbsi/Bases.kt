@@ -74,7 +74,7 @@ class Base(
     val isReady
         get() = building?.isReady ?: false
 
-    private val building
+    val building
         get() = zergBot
             .ownUnits
             .firstOrNull {
