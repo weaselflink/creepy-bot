@@ -19,7 +19,7 @@ plugins {
 }
 
 application {
-    mainClass.set("de.stefanbissell.bots.numbsi.MainKt")
+    mainClass.set("de.stefanbissell.bots.numbsi.LadderKt")
 }
 
 repositories {
