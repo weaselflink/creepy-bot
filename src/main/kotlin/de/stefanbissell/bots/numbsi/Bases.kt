@@ -13,11 +13,12 @@ class Bases(
     val currentBases: MutableList<Base> = mutableListOf()
 
     override fun onStep() {
-        currentBases.removeIf { base ->
-            zergBot.observation()
-                .units
-                .none { it.tag.value == base.buildingId }
-        }
+        removeDestroyedBases()
+        addNewBases()
+        tryInjectLarva()
+    }
+
+    private fun addNewBases() {
         zergBot.baseBuildings
             .filter { building ->
                 currentBases
@@ -30,11 +31,19 @@ class Bases(
                     position = it.position
                 )
             }
-        tryInjectLarva()
+    }
+
+    private fun removeDestroyedBases() {
+        currentBases.removeIf { base ->
+            zergBot
+                .ownUnits
+                .none { it.tag.value == base.buildingId }
+        }
     }
 
     private fun tryInjectLarva() {
-        zergBot.ownUnits
+        zergBot
+            .ownUnits
             .ofType(Units.ZERG_QUEEN)
             .idle
             .mapNotNull { queen ->
@@ -65,7 +74,7 @@ class Base(
     val isReady
         get() = building?.isReady ?: false
 
-    val building
+    private val building
         get() = zergBot
             .ownUnits
             .firstOrNull {
