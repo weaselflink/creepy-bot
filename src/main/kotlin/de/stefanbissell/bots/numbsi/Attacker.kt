@@ -6,19 +6,18 @@ import com.github.ocraft.s2client.protocol.unit.CloakState
 import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
 class Attacker(
-    private val zergBot: ZergBot,
     private val gameMap: GameMap
-) : BotComponent {
+) : BotComponent() {
 
-    override fun onStep() {
-        if (enoughTroops()) {
+    override fun onStep(zergBot: ZergBot) {
+        if (enoughTroops(zergBot)) {
             zergBot
                 .ownCombatUnits
-                .orderAttack()
+                .orderAttack(zergBot)
         }
     }
 
-    private fun List<S2Unit>.orderAttack() {
+    private fun List<S2Unit>.orderAttack(zergBot: ZergBot) {
         val enemies = zergBot.enemyUnits
             .filter {
                 !it.flying.orElse(true) &&
@@ -53,7 +52,7 @@ class Attacker(
         }
     }
 
-    private fun enoughTroops(): Boolean {
+    private fun enoughTroops(zergBot: ZergBot): Boolean {
         val troops = zergBot
             .ownCombatUnits
             .count()

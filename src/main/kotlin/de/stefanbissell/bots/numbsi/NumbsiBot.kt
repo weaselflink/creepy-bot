@@ -1,42 +1,68 @@
 package de.stefanbissell.bots.numbsi
 
-import com.github.ocraft.s2client.bot.ClientEvents
-import org.kodein.di.DI
-import org.kodein.di.allInstances
-import org.kodein.di.bind
-import org.kodein.di.instance
-import org.kodein.di.singleton
+import com.github.ocraft.s2client.bot.S2Agent
+import com.github.ocraft.s2client.protocol.data.Upgrade
+import org.kodein.di.*
 
 class NumbsiBot(
     private val showDebug: Boolean = false
-) : ZergBot() {
+) : S2Agent() {
 
     private val di = DI {
-        bind { instance(this@NumbsiBot) }
-        bind { singleton { GameMap(instance()) } }
-        bind { singleton { Bases(instance()) } }
-        bind { singleton { FriendlyChat(instance()) } }
-        bind { singleton { WorkerManager(instance(), instance()) } }
+        bind { singleton { GameMap() } }
+        bind { singleton { UpgradeTacker() } }
+        bind { singleton { Bases() } }
+        bind { singleton { FriendlyChat() } }
+        bind { singleton { WorkerManager(instance()) } }
         bind { singleton { BuildOrder(instance(), instance(), instance()) } }
-        bind { singleton { Attacker(instance(), instance()) } }
+        bind { singleton { Attacker(instance()) } }
     }
     private val components by di.allInstances<BotComponent>()
 
     override fun onGameStart() {
-        components.forEach {
-            it.onGameStart()
-        }
+        super.onGameStart()
+        val zergBot = ZergBot(this)
+        components
+            .sortedBy { it.priority }
+            .forEach {
+                it.onGameStart(zergBot)
+            }
     }
 
     override fun onStep() {
-        components.forEach {
-            it.onStep()
-        }
+        super.onStep()
+        val zergBot = ZergBot(this)
+        components
+            .sortedBy { it.priority }
+            .forEach {
+                it.onStep(zergBot)
+            }
 
         if (showDebug) {
             debug().sendDebug()
         }
     }
+
+    override fun onUpgradeCompleted(upgrade: Upgrade) {
+        super.onUpgradeCompleted(upgrade)
+        val zergBot = ZergBot(this)
+        components
+            .sortedBy { it.priority }
+            .forEach {
+                it.onUpgradeCompleted(zergBot, upgrade)
+            }
+    }
 }
 
-interface BotComponent : ClientEvents
+abstract class BotComponent(
+    val priority: Int = Int.MAX_VALUE
+) {
+
+    open fun onGameStart(zergBot: ZergBot) {}
+
+    open fun onGameEnd(zergBot: ZergBot) {}
+
+    open fun onStep(zergBot: ZergBot) {}
+
+    open fun onUpgradeCompleted(zergBot: ZergBot, upgrade: Upgrade) {}
+}

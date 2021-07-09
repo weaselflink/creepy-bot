@@ -1,18 +1,14 @@
 package de.stefanbissell.bots.numbsi
 
-import com.github.ocraft.s2client.protocol.data.Abilities
-import com.github.ocraft.s2client.protocol.data.UnitType
-import com.github.ocraft.s2client.protocol.data.Units
-import com.github.ocraft.s2client.protocol.data.Upgrade
-import com.github.ocraft.s2client.protocol.data.Upgrades
+import com.github.ocraft.s2client.protocol.data.*
 import com.github.ocraft.s2client.protocol.spatial.Point
 import kotlin.random.Random
 
 class BuildOrder(
-    val zergBot: ZergBot,
     private val gameMap: GameMap,
+    upgradeTacker: UpgradeTacker,
     private val bases: Bases
-) : BotComponent {
+) : BotComponent() {
 
     private val order = listOf(
         DroneUp(14),
@@ -23,31 +19,31 @@ class BuildOrder(
         TrainUnit(Units.ZERG_OVERLORD, 3),
         TrainUnit(Units.ZERG_QUEEN, 1),
         DroneUp(19),
-        ResearchUpgrade(Upgrades.ZERGLING_MOVEMENT_SPEED),
+        ResearchUpgrade(upgradeTacker, Upgrades.ZERGLING_MOVEMENT_SPEED),
         BuildStructure(Units.ZERG_HATCHERY, 2),
         BuildStructure(Units.ZERG_EVOLUTION_CHAMBER),
         DroneUp(25),
         KeepTraining(listOf(Units.ZERG_ZERGLING)),
         KeepSupplied(),
-        ResearchUpgrade(Upgrades.ZERG_GROUND_ARMORS_LEVEL1),
-        NonWaiting(ResearchUpgrade(Upgrades.ZERG_MELEE_WEAPONS_LEVEL1)),
+        ResearchUpgrade(upgradeTacker, Upgrades.ZERG_GROUND_ARMORS_LEVEL1),
+        NonWaiting(ResearchUpgrade(upgradeTacker, Upgrades.ZERG_MELEE_WEAPONS_LEVEL1)),
         NonWaiting(BuildStructure(Units.ZERG_LAIR, 1)),
-        Conditional(TrainUnit(Units.ZERG_QUEEN, 2)) {
-            it.zergBot.baseBuildings.ready.count() >= 2
+        Conditional(TrainUnit(Units.ZERG_QUEEN, 2)) { zergBot, _ ->
+            zergBot.baseBuildings.ready.count() >= 2
         },
-        Conditional(TrainUnit(Units.ZERG_QUEEN, 3)) {
-            it.zergBot.baseBuildings.ready.count() >= 3
+        Conditional(TrainUnit(Units.ZERG_QUEEN, 3)) { zergBot, _ ->
+            zergBot.baseBuildings.ready.count() >= 3
         }
     )
 
-    override fun onStep() {
+    override fun onStep(zergBot: ZergBot) {
         order
             .firstOrNull {
-                !it.tryExecute(this)
+                !it.tryExecute(zergBot, this)
             }
     }
 
-    fun tryBuildStructure(type: UnitType) =
+    fun tryBuildStructure(zergBot: ZergBot, type: UnitType) =
         when (type) {
             Units.ZERG_EXTRACTOR -> {
                 bases
@@ -90,6 +86,7 @@ class BuildOrder(
                 bases
                     .currentBases
                     .firstOrNull()
+                    ?.building
                     ?.position
                     ?.towards(gameMap.center, 6f)
                     ?.add(Point.of(getRandomScalar(), getRandomScalar()).mul(4.0f))
@@ -109,14 +106,14 @@ class BuildOrder(
 
 sealed class BuildOrderStep {
 
-    abstract fun tryExecute(buildOrder: BuildOrder): Boolean
+    abstract fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean
 }
 
 data class DroneUp(val needed: Int) : BuildOrderStep() {
-    override fun tryExecute(buildOrder: BuildOrder): Boolean {
-        val count = buildOrder.zergBot.totalCount(Units.ZERG_DRONE)
+    override fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean {
+        val count = zergBot.totalCount(Units.ZERG_DRONE)
         if (count < needed) {
-            buildOrder.zergBot.trainUnit(Units.ZERG_DRONE)
+            zergBot.trainUnit(Units.ZERG_DRONE)
             return false
         }
         return true
@@ -127,10 +124,10 @@ data class TrainUnit(
     val type: UnitType,
     val needed: Int
 ) : BuildOrderStep() {
-    override fun tryExecute(buildOrder: BuildOrder): Boolean {
-        val count = buildOrder.zergBot.totalCount(type)
+    override fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean {
+        val count = zergBot.totalCount(type)
         if (count < needed) {
-            buildOrder.zergBot.trainUnit(type)
+            zergBot.trainUnit(type)
             return false
         }
         return true
@@ -141,10 +138,10 @@ data class BuildStructure(
     val type: UnitType,
     val needed: Int = 1
 ) : BuildOrderStep() {
-    override fun tryExecute(buildOrder: BuildOrder): Boolean {
-        val count = buildOrder.zergBot.totalCount(type)
+    override fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean {
+        val count = zergBot.totalCount(type)
         if (count < needed) {
-            buildOrder.tryBuildStructure(type)
+            buildOrder.tryBuildStructure(zergBot, type)
             return false
         }
         return true
@@ -154,41 +151,42 @@ data class BuildStructure(
 data class KeepTraining(
     val types: List<UnitType>
 ) : BuildOrderStep() {
-    override fun tryExecute(buildOrder: BuildOrder): Boolean {
+    override fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean {
         types
             .filter {
-                buildOrder.zergBot.canAfford(it)
+                zergBot.canAfford(it)
             }
             .randomOrNull()
             ?.also {
-                buildOrder.zergBot.trainUnit(it)
+                zergBot.trainUnit(it)
             }
         return true
     }
 }
 
 data class ResearchUpgrade(
+    val upgradeTacker: UpgradeTacker,
     val upgrade: Upgrade
 ) : BuildOrderStep() {
-    override fun tryExecute(buildOrder: BuildOrder): Boolean {
-        if (buildOrder.zergBot.isCompleted(upgrade)) {
+    override fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean {
+        if (upgradeTacker.isCompleted(upgrade)) {
             return true
         }
-        if (buildOrder.zergBot.isPending(upgrade)) {
+        if (upgradeTacker.isPending(zergBot, upgrade)) {
             return true
         }
-        buildOrder.zergBot.tryResearchUpgrade(upgrade)
+        zergBot.tryResearchUpgrade(upgrade)
         return false
     }
 }
 
 data class KeepSupplied(val minOverlords: Int = 3) : BuildOrderStep() {
-    override fun tryExecute(buildOrder: BuildOrder): Boolean {
-        if (buildOrder.zergBot.totalCount(Units.ZERG_OVERLORD) >= minOverlords &&
-            buildOrder.zergBot.supplyLeft < 4 &&
-            buildOrder.zergBot.pendingCount(Units.ZERG_OVERLORD) == 0
+    override fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean {
+        if (zergBot.totalCount(Units.ZERG_OVERLORD) >= minOverlords &&
+            zergBot.supplyLeft < 4 &&
+            zergBot.pendingCount(Units.ZERG_OVERLORD) == 0
         ) {
-            buildOrder.zergBot.trainUnit(Units.ZERG_OVERLORD)
+            zergBot.trainUnit(Units.ZERG_OVERLORD)
         }
         return true
     }
@@ -196,21 +194,21 @@ data class KeepSupplied(val minOverlords: Int = 3) : BuildOrderStep() {
 
 data class Conditional(
     val step: BuildOrderStep,
-    val condition: (BuildOrder) -> Boolean
+    val condition: (ZergBot, BuildOrder) -> Boolean
 ) : BuildOrderStep() {
-    override fun tryExecute(buildOrder: BuildOrder): Boolean {
-        if (!condition(buildOrder)) {
+    override fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean {
+        if (!condition(zergBot, buildOrder)) {
             return false
         }
-        return step.tryExecute(buildOrder)
+        return step.tryExecute(zergBot, buildOrder)
     }
 }
 
 data class NonWaiting(
     val step: BuildOrderStep
 ) : BuildOrderStep() {
-    override fun tryExecute(buildOrder: BuildOrder): Boolean {
-        step.tryExecute(buildOrder)
+    override fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean {
+        step.tryExecute(zergBot, buildOrder)
         return true
     }
 }

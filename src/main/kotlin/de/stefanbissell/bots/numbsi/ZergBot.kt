@@ -1,5 +1,6 @@
 package de.stefanbissell.bots.numbsi
 
+import com.github.ocraft.s2client.bot.S2Agent
 import com.github.ocraft.s2client.protocol.data.Abilities
 import com.github.ocraft.s2client.protocol.data.Ability
 import com.github.ocraft.s2client.protocol.data.UnitType
@@ -9,7 +10,9 @@ import com.github.ocraft.s2client.protocol.data.Upgrades
 import com.github.ocraft.s2client.protocol.spatial.Point
 import com.github.ocraft.s2client.protocol.unit.Unit
 
-open class ZergBot : CommonBot() {
+open class ZergBot(
+    agent: S2Agent
+) : CommonBot(agent) {
 
     private val baseTypes = listOf(
         Units.ZERG_HATCHERY,
@@ -40,7 +43,7 @@ open class ZergBot : CommonBot() {
         Units.ZERG_ROACH to Abilities.TRAIN_ROACH
     )
 
-    private val upgrades = listOf(
+    val upgrades = listOf(
         UpgradeData(
             Upgrades.ZERGLING_MOVEMENT_SPEED,
             Abilities.RESEARCH_ZERGLING_METABOLIC_BOOST,
@@ -75,23 +78,30 @@ open class ZergBot : CommonBot() {
         )
     ).associateBy { it.upgrade }
 
-    val workers
-        get() = ownUnits.ofTypes(workerTypes)
+    val workers by lazy {
+        ownUnits.ofTypes(workerTypes)
+    }
 
-    val ownCombatUnits
-        get() = ownUnits.ofTypes(combatTypes)
+    val ownCombatUnits by lazy {
+        ownUnits.ofTypes(combatTypes)
+    }
 
-    private val idleLarva
-        get() = ownUnits
+    private val idleLarva by lazy {
+        ownUnits
             .ofType(Units.ZERG_LARVA)
             .idle
+    }
 
-    val baseBuildings
-        get() = ownUnits
+    val baseBuildings by lazy {
+        ownUnits
             .filter {
                 it.type in baseTypes
             }
+    }
 
+    val ownQueens by lazy {
+        ownUnits.ofType(Units.ZERG_QUEEN)
+    }
 
     fun isBuilding(unit: Unit): Boolean {
         return unit
@@ -116,7 +126,7 @@ open class ZergBot : CommonBot() {
             ?: 0
     }
 
-    fun readyCount(type: UnitType): Int {
+    private fun readyCount(type: UnitType): Int {
         return ownUnits.ofType(type).count()
     }
 
@@ -135,8 +145,6 @@ open class ZergBot : CommonBot() {
     private fun trainQueen() {
         trainingAbilities[Units.ZERG_QUEEN]
             ?.also { ability ->
-                val queens = ownUnits
-                    .ofType(Units.ZERG_QUEEN)
                 val idleBases = baseBuildings
                     .filter {
                         canCast(it, ability, false)
@@ -144,7 +152,7 @@ open class ZergBot : CommonBot() {
                     .idle
                 val idleBasesWithoutQueen = idleBases
                     .filter { idleBase ->
-                        queens
+                        ownQueens
                             .closerThan(idleBase, 9f)
                             .isEmpty()
                     }
@@ -212,18 +220,6 @@ open class ZergBot : CommonBot() {
                 target,
                 false
             )
-    }
-
-    fun isPending(upgrade: Upgrade): Boolean {
-        if (isCompleted(upgrade)) return false
-        val upgradeData = upgrades[upgrade] ?: return false
-        if (upgradeData.after != null && !isCompleted(upgradeData.after)) {
-            return false
-        }
-        return ownUnits
-            .ofType(upgradeData.unitType)
-            .flatMap { it.orders }
-            .any { it.ability == upgradeData.ability }
     }
 
     fun tryResearchUpgrade(upgrade: Upgrade) {

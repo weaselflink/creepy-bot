@@ -1,6 +1,7 @@
 package de.stefanbissell.bots.numbsi
 
 import com.github.ocraft.s2client.protocol.data.Units
+import com.github.ocraft.s2client.protocol.game.raw.StartRaw
 import com.github.ocraft.s2client.protocol.spatial.Point
 import com.github.ocraft.s2client.protocol.spatial.Point2d
 import com.github.ocraft.s2client.protocol.unit.Alliance
@@ -8,13 +9,9 @@ import java.lang.Float.max
 import java.lang.Float.min
 import kotlin.random.Random
 
-class GameMap(
-    private val zergBot: ZergBot,
-) : BotComponent {
+class GameMap : BotComponent(0) {
 
-    private val startRaw by lazy {
-        zergBot.observation().gameInfo.startRaw.get()
-    }
+    private lateinit var startRaw: StartRaw
     lateinit var expansions: List<Point>
     lateinit var ownStart: Point2d
     lateinit var enemyStart: Point2d
@@ -23,7 +20,8 @@ class GameMap(
     private val height by lazy { startRaw.mapSize.x }
     val center: Point by lazy { Point.of(width / 2f, height / 2f) }
 
-    override fun onGameStart() {
+    override fun onGameStart(zergBot: ZergBot) {
+        startRaw = zergBot.observation().gameInfo.startRaw.get()
         expansions = zergBot.query()
             .calculateExpansionLocations(zergBot.observation())
         ownStart = zergBot.observation()
@@ -46,6 +44,6 @@ class GameMap(
             min(max(0f, point.y), height.toFloat())
         )
 
-    fun randomPoint() =
+    fun randomPoint(): Point2d =
         Point2d.of(Random.nextFloat() * width, Random.nextFloat() * height)
 }

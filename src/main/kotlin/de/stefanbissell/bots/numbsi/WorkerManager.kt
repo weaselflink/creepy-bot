@@ -5,33 +5,30 @@ import com.github.ocraft.s2client.protocol.debug.Color
 import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
 class WorkerManager(
-    private val zergBot: ZergBot,
     private val bases: Bases
-) : BotComponent {
+) : BotComponent() {
 
     private val prioritizeGas = true
     private var lastRebalance = 0.0
 
-    override fun onStep() {
-        sendIdleToWork()
-        debugWorkerJobs()
+    override fun onStep(zergBot: ZergBot) {
+        sendIdleToWork(zergBot)
+        debugWorkerJobs(zergBot)
         val seconds = zergBot.gameTime.exactSeconds
         if (seconds - lastRebalance > 1) {
             lastRebalance = seconds
-            rebalanceWorkers()
+            rebalanceWorkers(zergBot)
         }
     }
 
-    private fun rebalanceWorkers() {
+    private fun rebalanceWorkers(zergBot: ZergBot) {
         val basesWithSurplus = bases.currentBases
             .filter {
-                it.isReady &&
-                    it.workerCount > it.optimalWorkerCount + 1
+                it.workerCount > it.optimalWorkerCount + 1
             }
         val basesWithNeed = bases.currentBases
             .filter {
-                it.isReady &&
-                    it.workerCount < it.optimalWorkerCount
+                it.workerCount < it.optimalWorkerCount
             }
 
         if (basesWithNeed.isNotEmpty() && basesWithSurplus.isNotEmpty()) {
@@ -84,35 +81,36 @@ class WorkerManager(
         }
     }
 
-    private fun sendIdleToWork() {
+    private fun sendIdleToWork(zergBot: ZergBot) {
         zergBot.workers
             .idle
             .forEach {
-                it.backToWork()
+                it.backToWork(zergBot)
             }
     }
 
-    private fun debugWorkerJobs() {
+    private fun debugWorkerJobs(zergBot: ZergBot) {
         zergBot.workers
             .forEach {
                 when {
                     zergBot.isHarvestingMinerals(it) -> {
-                        debugText(it, "minerals")
+                        debugText(zergBot, it, "minerals")
                     }
                     zergBot.isHarvestingVespene(it) -> {
-                        debugText(it, "vespene")
+                        debugText(zergBot, it, "vespene")
                     }
                     zergBot.isBuilding(it) -> {
-                        debugText(it, "building", Color.GREEN)
+                        debugText(zergBot, it, "building", Color.GREEN)
                     }
                     else -> {
-                        debugText(it, "unknown", Color.RED)
+                        debugText(zergBot, it, "unknown", Color.RED)
                     }
                 }
             }
     }
 
     private fun debugText(
+        zergBot: ZergBot,
         worker: S2Unit,
         text: String,
         color: Color = Color.WHITE
@@ -121,8 +119,8 @@ class WorkerManager(
             .debugTextOut(text, worker.position, color, 12)
     }
 
-    private fun S2Unit.backToWork() {
-        val closestMinerals = closestMineralsNearBase() ?: closestMinerals()
+    private fun S2Unit.backToWork(zergBot: ZergBot) {
+        val closestMinerals = closestMineralsNearBase() ?: closestMinerals(zergBot)
         closestMinerals
             ?.also {
                 zergBot.actions()
@@ -130,7 +128,7 @@ class WorkerManager(
             }
     }
 
-    private fun S2Unit.closestMinerals() =
+    private fun S2Unit.closestMinerals(zergBot: ZergBot) =
         zergBot.mineralFields
             .closestTo(this)
 

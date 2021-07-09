@@ -2,11 +2,9 @@ package de.stefanbissell.bots.numbsi
 
 import com.github.ocraft.s2client.protocol.action.ActionChat
 
-class FriendlyChat(
-    private val zergBot: ZergBot
-) : BotComponent {
+class FriendlyChat : BotComponent() {
 
-    override fun onGameStart() {
+    override fun onGameStart(zergBot: ZergBot) {
         zergBot.actions()
             .sendChat("GL HF", ActionChat.Channel.BROADCAST)
     }

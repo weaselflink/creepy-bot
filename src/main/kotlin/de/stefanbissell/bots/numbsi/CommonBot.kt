@@ -1,15 +1,24 @@
 package de.stefanbissell.bots.numbsi
 
+import com.github.ocraft.s2client.bot.ClientEvents
 import com.github.ocraft.s2client.bot.S2Agent
-import com.github.ocraft.s2client.bot.gateway.UnitInPool
+import com.github.ocraft.s2client.bot.gateway.*
 import com.github.ocraft.s2client.protocol.data.*
 import com.github.ocraft.s2client.protocol.unit.Alliance
 import com.github.ocraft.s2client.protocol.unit.Unit
 import com.github.ocraft.s2client.protocol.unit.UnitOrder
 
-open class CommonBot : S2Agent() {
+open class CommonBot(
+    private val agent: S2Agent
+) : ClientEvents {
 
-    private val completedUpgrades = mutableSetOf<Upgrade>()
+    fun observation(): ObservationInterface = agent.observation()
+
+    fun actions(): ActionInterface = agent.actions()
+
+    fun query(): QueryInterface = agent.query()
+
+    fun debug(): DebugInterface = agent.debug()
 
     private val mineralBuffs = listOf(
         Buffs.CARRY_MINERAL_FIELD_MINERALS,
@@ -45,54 +54,53 @@ open class CommonBot : S2Agent() {
 
     private val resourceTypes = mineralFieldTypes + vespeneGeyserTypes
 
-    val supplyLeft
-        get() = observation().foodCap - observation().foodUsed
+    val supplyLeft by lazy {
+        observation().foodCap - observation().foodUsed
+    }
 
-    val resources
-        get() = observation()
+    private val neutralUnits by lazy {
+        observation()
             .getUnits(Alliance.NEUTRAL)
             .asUnits()
+    }
+
+    val resources by lazy {
+        neutralUnits
             .ofTypes(resourceTypes)
+    }
 
-    val mineralFields
-        get() = observation()
-            .getUnits(Alliance.NEUTRAL)
-            .asUnits()
+    val mineralFields by lazy {
+        neutralUnits
             .ofTypes(mineralFieldTypes)
+    }
 
-    val vespeneGeysers
-        get() = observation()
-            .getUnits(Alliance.NEUTRAL)
-            .asUnits()
+    val vespeneGeysers by lazy {
+        neutralUnits
             .ofTypes(vespeneGeyserTypes)
+    }
 
-    val ownUnits
-        get() = observation()
+    val ownUnits by lazy {
+        observation()
             .getUnits(Alliance.SELF)
             .asUnits()
+    }
 
-    val enemyUnits
-        get() = observation()
+    val enemyUnits by lazy {
+        observation()
             .getUnits(Alliance.ENEMY)
             .asUnits()
+    }
 
-    val ownWorkingVespeneBuildings
-        get() = ownUnits
+    val ownWorkingVespeneBuildings by lazy {
+        ownUnits
             .ofTypes(vespeneBuildingTypes)
             .ready
             .filter {
                 it.vespeneContents.orElse(0) > 0
             }
-
-    val gameTime
-        get() = GameTime(observation().gameLoop)
-
-    override fun onUpgradeCompleted(upgrade: Upgrade) {
-        completedUpgrades += upgrade
     }
 
-    fun isCompleted(upgrade: Upgrade) =
-        upgrade in completedUpgrades
+    val gameTime = GameTime(observation().gameLoop)
 
     fun canCast(
         unit: Unit,

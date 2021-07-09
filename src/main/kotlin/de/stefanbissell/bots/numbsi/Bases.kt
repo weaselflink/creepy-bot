@@ -3,48 +3,32 @@ package de.stefanbissell.bots.numbsi
 import com.github.ocraft.s2client.protocol.data.Abilities
 import com.github.ocraft.s2client.protocol.data.Buffs
 import com.github.ocraft.s2client.protocol.data.Units
-import com.github.ocraft.s2client.protocol.spatial.Point
 import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
-class Bases(
-    private val zergBot: ZergBot
-) : BotComponent {
+class Bases : BotComponent(1) {
 
-    val currentBases: MutableList<Base> = mutableListOf()
+    var currentBases: List<Base> = listOf()
 
-    override fun onStep() {
-        removeDestroyedBases()
-        addNewBases()
-        tryInjectLarva()
+    override fun onStep(zergBot: ZergBot) {
+        initBases(zergBot)
+        tryInjectLarva(zergBot)
     }
 
-    private fun addNewBases() {
-        zergBot.baseBuildings
-            .filter { building ->
-                currentBases
-                    .none { it.buildingId == building.tag.value }
-            }
-            .forEach {
-                currentBases += Base(
+    private fun initBases(zergBot: ZergBot) {
+        currentBases = zergBot
+            .baseBuildings
+            .ready
+            .map {
+                Base(
                     zergBot = zergBot,
-                    buildingId = it.tag.value,
-                    position = it.position
+                    building = it
                 )
             }
     }
 
-    private fun removeDestroyedBases() {
-        currentBases.removeIf { base ->
-            zergBot
-                .ownUnits
-                .none { it.tag.value == base.buildingId }
-        }
-    }
-
-    private fun tryInjectLarva() {
+    private fun tryInjectLarva(zergBot: ZergBot) {
         zergBot
-            .ownUnits
-            .ofType(Units.ZERG_QUEEN)
+            .ownQueens
             .idle
             .mapNotNull { queen ->
                 zergBot.baseBuildings
@@ -55,7 +39,7 @@ class Bases(
             }
             .filter { (queen, base) ->
                 zergBot.canCast(queen, Abilities.EFFECT_INJECT_LARVA) &&
-                    base.buffs.none { it.buffId == Buffs.QUEEN_SPAWN_LARVA_TIMER.buffId }
+                        base.buffs.none { it.buffId == Buffs.QUEEN_SPAWN_LARVA_TIMER.buffId }
             }
             .randomOrNull()
             ?.also { (queen, base) ->
@@ -67,44 +51,27 @@ class Bases(
 
 class Base(
     private val zergBot: ZergBot,
-    val buildingId: Long,
-    val position: Point
+    val building: S2Unit
 ) {
 
-    val isReady
-        get() = building?.isReady ?: false
-
-    val building
-        get() = zergBot
-            .ownUnits
-            .firstOrNull {
-                it.tag.value == buildingId
+    val mineralFields by lazy {
+        zergBot
+            .mineralFields
+            .filter {
+                it.position.distance(building.position) < 9f
             }
+    }
 
-    val mineralFields
-        get() = building
-            ?.let { b ->
-                zergBot
-                    .mineralFields
-                    .filter {
-                        it.position.distance(b.position) < 9f
-                    }
+    private val geysers by lazy {
+        zergBot
+            .vespeneGeysers
+            .filter {
+                it.position.distance(building.position) < 9f
             }
-            ?: emptyList()
+    }
 
-    private val geysers
-        get() = building
-            ?.let { b ->
-                zergBot
-                    .vespeneGeysers
-                    .filter {
-                        it.position.distance(b.position) < 9f
-                    }
-            }
-            ?: emptyList()
-
-    val emptyGeysers
-        get() = geysers
+    val emptyGeysers by lazy {
+        geysers
             .filter { geyser ->
                 zergBot.ownUnits
                     .ofTypes(
@@ -115,63 +82,57 @@ class Base(
                         it.position.distance(geyser.position) < 1
                     }
             }
+    }
 
-    private val workingExtractors
-        get() = building
-            ?.let { b ->
-                zergBot
-                    .ownWorkingVespeneBuildings
-                    .filter {
-                        it.position.distance(b.position) < 9f
-                    }
+    private val workingExtractors by lazy {
+        zergBot
+            .ownWorkingVespeneBuildings
+            .filter {
+                it.position.distance(building.position) < 9f
             }
-            ?: emptyList()
+    }
 
-    val underSaturatedExtractors
-        get() = workingExtractors
+    val underSaturatedExtractors by lazy {
+        workingExtractors
             .filter {
                 it.assignedHarvesters.orElse(0) < 3
             }
+    }
 
-    private val workers
-        get() = building
-            ?.let { b ->
-                zergBot
-                    .workers
-                    .filter {
-                        it.position.distance(b.position) < 9f
-                    }
-                    .filter {
-                        zergBot.isHarvestingMinerals(it) ||
-                            zergBot.isHarvestingVespene(it)
-                    }
+    private val workers by lazy {
+        zergBot
+            .workers
+            .filter {
+                it.position.distance(building.position) < 9f
             }
-            ?: emptyList()
-
-    val mineralWorkers
-        get() = building
-            ?.let { b ->
-                zergBot
-                    .workers
-                    .filter {
-                        it.position.distance(b.position) < 9f
-                    }
-                    .filter {
-                        zergBot.isHarvestingMinerals(it)
-                    }
+            .filter {
+                zergBot.isHarvestingMinerals(it) ||
+                        zergBot.isHarvestingVespene(it)
             }
-            ?: emptyList()
+    }
 
-    val workerCount: Int
-        get() = workers.size
+    val mineralWorkers by lazy {
+        zergBot
+            .workers
+            .filter {
+                it.position.distance(building.position) < 9f
+            }
+            .filter {
+                zergBot.isHarvestingMinerals(it)
+            }
+    }
 
-    val optimalWorkerCount: Int
-        get() = workingExtractors.size * 3 + mineralFields.size * 2
+    val workerCount: Int by lazy { workers.size }
 
-    val surplusWorker: S2Unit?
-        get() = if (workerCount <= optimalWorkerCount) {
+    val optimalWorkerCount: Int by lazy {
+        workingExtractors.size * 3 + mineralFields.size * 2
+    }
+
+    val surplusWorker: S2Unit? by lazy {
+        if (workerCount <= optimalWorkerCount) {
             null
         } else {
             workers.randomOrNull()
         }
+    }
 }
