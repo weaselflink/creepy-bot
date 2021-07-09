@@ -30,12 +30,14 @@ open class ZergBot : CommonBot() {
     private val trainingAbilities = mapOf(
         Units.ZERG_HATCHERY to Abilities.BUILD_HATCHERY,
         Units.ZERG_SPAWNING_POOL to Abilities.BUILD_SPAWNING_POOL,
+        Units.ZERG_ROACH_WARREN to Abilities.BUILD_ROACH_WARREN,
         Units.ZERG_EXTRACTOR to Abilities.BUILD_EXTRACTOR,
         Units.ZERG_EVOLUTION_CHAMBER to Abilities.BUILD_EVOLUTION_CHAMBER,
         Units.ZERG_QUEEN to Abilities.TRAIN_QUEEN,
         Units.ZERG_DRONE to Abilities.TRAIN_DRONE,
         Units.ZERG_OVERLORD to Abilities.TRAIN_OVERLORD,
-        Units.ZERG_ZERGLING to Abilities.TRAIN_ZERGLING
+        Units.ZERG_ZERGLING to Abilities.TRAIN_ZERGLING,
+        Units.ZERG_ROACH to Abilities.TRAIN_ROACH
     )
 
     private val upgrades = listOf(
@@ -242,7 +244,7 @@ open class ZergBot : CommonBot() {
             )
     }
 
-    private fun canAfford(unitType: UnitType) = canAfford(cost(unitType))
+    fun canAfford(unitType: UnitType) = canAfford(cost(unitType))
 
     private fun canAfford(cost: Cost?): Boolean {
         return cost != null &&

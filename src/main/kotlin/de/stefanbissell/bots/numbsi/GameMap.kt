@@ -6,6 +6,7 @@ import com.github.ocraft.s2client.protocol.spatial.Point2d
 import com.github.ocraft.s2client.protocol.unit.Alliance
 import java.lang.Float.max
 import java.lang.Float.min
+import kotlin.random.Random
 
 class GameMap(
     private val zergBot: ZergBot,
@@ -44,4 +45,7 @@ class GameMap(
             min(max(0f, point.x), width.toFloat()),
             min(max(0f, point.y), height.toFloat())
         )
+
+    fun randomPoint() =
+        Point2d.of(Random.nextFloat() * width, Random.nextFloat() * height)
 }

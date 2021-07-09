@@ -27,11 +27,11 @@ class BuildOrder(
         BuildStructure(Units.ZERG_HATCHERY, 2),
         BuildStructure(Units.ZERG_EVOLUTION_CHAMBER),
         DroneUp(25),
-        KeepTraining(Units.ZERG_ZERGLING),
+        KeepTraining(listOf(Units.ZERG_ZERGLING)),
         KeepSupplied(),
         ResearchUpgrade(Upgrades.ZERG_GROUND_ARMORS_LEVEL1),
-        ResearchUpgrade(Upgrades.ZERG_MELEE_WEAPONS_LEVEL1),
-        BuildStructure(Units.ZERG_LAIR, 1),
+        NonWaiting(ResearchUpgrade(Upgrades.ZERG_MELEE_WEAPONS_LEVEL1)),
+        NonWaiting(BuildStructure(Units.ZERG_LAIR, 1)),
         Conditional(TrainUnit(Units.ZERG_QUEEN, 2)) {
             it.zergBot.baseBuildings.ready.count() >= 2
         },
@@ -152,10 +152,17 @@ data class BuildStructure(
 }
 
 data class KeepTraining(
-    val type: UnitType
+    val types: List<UnitType>
 ) : BuildOrderStep() {
     override fun tryExecute(buildOrder: BuildOrder): Boolean {
-        buildOrder.zergBot.trainUnit(type)
+        types
+            .filter {
+                buildOrder.zergBot.canAfford(it)
+            }
+            .randomOrNull()
+            ?.also {
+                buildOrder.zergBot.trainUnit(it)
+            }
         return true
     }
 }
@@ -196,5 +203,14 @@ data class Conditional(
             return false
         }
         return step.tryExecute(buildOrder)
+    }
+}
+
+data class NonWaiting(
+    val step: BuildOrderStep
+) : BuildOrderStep() {
+    override fun tryExecute(buildOrder: BuildOrder): Boolean {
+        step.tryExecute(buildOrder)
+        return true
     }
 }

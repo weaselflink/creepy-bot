@@ -71,6 +71,11 @@ open class CommonBot : S2Agent() {
             .getUnits(Alliance.SELF)
             .asUnits()
 
+    val enemyUnits
+        get() = observation()
+            .getUnits(Alliance.ENEMY)
+            .asUnits()
+
     val ownWorkingVespeneBuildings
         get() = ownUnits
             .ofTypes(vespeneBuildingTypes)

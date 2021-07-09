@@ -22,3 +22,6 @@ fun List<S2Unit>.closestTo(point: Point) =
 
 fun List<S2Unit>.closerThan(unit: S2Unit, distance: Float) =
     filter { it.position.distance(unit.position) < distance }
+
+fun Point.distance(point: Point2d) =
+    distance(Point.of(point.x, point.y))
