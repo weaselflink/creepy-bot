@@ -105,7 +105,7 @@ open class CommonBot(
     fun canCast(
         unit: Unit,
         ability: Ability,
-        ignoreResourceRequirements: Boolean = true
+        ignoreResourceRequirements: Boolean = false
     ) =
         query()
             .getAbilitiesForUnit(unit, ignoreResourceRequirements)

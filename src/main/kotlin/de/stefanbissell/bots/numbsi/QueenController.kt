@@ -2,63 +2,69 @@ package de.stefanbissell.bots.numbsi
 
 import com.github.ocraft.s2client.protocol.data.Abilities
 import com.github.ocraft.s2client.protocol.data.Buffs
+import com.github.ocraft.s2client.protocol.unit.Tag
 
 class QueenController : BotComponent() {
 
+    private val assignedQueens = mutableMapOf<Tag, Tag>()
+
     override fun onStep(zergBot: ZergBot) {
+        assignQueens(zergBot)
         tryInjectLarva(zergBot)
     }
 
-    private fun tryInjectLarva(zergBot: ZergBot) {
-        val readyBases = zergBot
+    private fun assignQueens(zergBot: ZergBot) {
+        removeDead(zergBot)
+        val unassignedQueens = zergBot
+            .queens
+            .filter {
+                it.tag !in assignedQueens.values
+            }
+        val basesNeedingQueen = zergBot
             .baseBuildings
             .ready
-        val (nearQueens, farQueens) = zergBot.queens
-            .partition {
-                val closest = readyBases.closestDistanceTo(it)
-                closest != null && closest < 9
+            .filter {
+                it.tag !in assignedQueens.keys
             }
-        nearQueens
-            .idle
-            .mapNotNull { queen ->
-                readyBases
-                    .firstOrNull { it.position.distance(queen.position) < 9 }
-                    ?.let {
-                        queen to it
-                    }
+        basesNeedingQueen
+            .closestPair(unassignedQueens)
+            ?.also { (base, queen) ->
+                assignedQueens[base.tag] = queen.tag
             }
-            .filter { (queen, base) ->
-                zergBot.canCast(queen, Abilities.EFFECT_INJECT_LARVA) &&
-                        base.buffs.none { it == Buffs.QUEEN_SPAWN_LARVA_TIMER }
+    }
+
+    private fun removeDead(zergBot: ZergBot) {
+        val bases = zergBot
+            .baseBuildings
+            .ready
+        assignedQueens
+            .entries
+            .removeIf { (baseTag, queenTag) ->
+                bases.none { it.tag == baseTag } ||
+                        zergBot.queens.none { it.tag == queenTag }
             }
-            .minByOrNull { (queen, base) ->
-                queen.distance(base)
+    }
+
+    private fun tryInjectLarva(zergBot: ZergBot) {
+        val bases = zergBot.baseBuildings.ready
+        val queens = zergBot.queens
+        var index = 1
+        assignedQueens
+            .map { (baseTag, queenTag) ->
+                val base = bases.first { it.tag == baseTag }
+                val queen = queens.first { it.tag == queenTag }
+                debugText(zergBot, base, "base $index")
+                debugText(zergBot, queen, "queen $index")
+                index++
+                base to queen
             }
-            ?.also { (queen, base) ->
+            .firstOrNull { (base, queen) ->
+                base.buffs.none { it == Buffs.QUEEN_SPAWN_LARVA_TIMER } &&
+                        zergBot.canCast(queen, Abilities.EFFECT_INJECT_LARVA)
+            }
+            ?.also { (base, queen) ->
                 zergBot.actions()
                     .unitCommand(queen, Abilities.EFFECT_INJECT_LARVA, base, false)
-                return
-            }
-        farQueens
-            .idle
-            .mapNotNull { queen ->
-                readyBases
-                    .closestTo(queen)
-                    ?.let {
-                        queen to it
-                    }
-            }
-            .filter { (queen, base) ->
-                zergBot.canCast(queen, Abilities.EFFECT_INJECT_LARVA) &&
-                        base.buffs.none { it == Buffs.QUEEN_SPAWN_LARVA_TIMER }
-            }
-            .minByOrNull { (queen, base) ->
-                queen.distance(base)
-            }
-            ?.also { (queen, base) ->
-                zergBot.actions()
-                    .unitCommand(queen, Abilities.EFFECT_INJECT_LARVA, base, false)
-                return
             }
     }
 }

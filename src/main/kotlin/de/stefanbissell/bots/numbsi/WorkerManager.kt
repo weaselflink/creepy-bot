@@ -107,16 +107,6 @@ class WorkerManager : BotComponent() {
             }
     }
 
-    private fun debugText(
-        zergBot: ZergBot,
-        worker: S2Unit,
-        text: String,
-        color: Color = Color.WHITE
-    ) {
-        zergBot.debug()
-            .debugTextOut(text, worker.position, color, 12)
-    }
-
     private fun S2Unit.backToWork(zergBot: ZergBot) {
         val closestMinerals = closestMineralsNearBase(zergBot) ?: closestMinerals(zergBot)
         closestMinerals

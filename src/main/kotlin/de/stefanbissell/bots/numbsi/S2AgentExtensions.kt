@@ -1,5 +1,6 @@
 package de.stefanbissell.bots.numbsi
 
+import com.github.ocraft.s2client.protocol.debug.Color
 import com.github.ocraft.s2client.protocol.spatial.Point
 import com.github.ocraft.s2client.protocol.spatial.Point2d
 import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
@@ -38,3 +39,24 @@ fun List<S2Unit>.closestTo(point: Point) = closestTo(point.toPoint2d())
 
 fun List<S2Unit>.closestTo(point: Point2d): S2Unit? =
     minByOrNull { it.position.distance(point) }
+
+fun List<S2Unit>.closestPair(other: List<S2Unit>): Pair<S2Unit, S2Unit>? =
+    if (this.isEmpty() || other.isEmpty()) {
+        null
+    } else {
+        val firstUnit = minByOrNull {
+            other.closestDistanceTo(it)!!
+        }!!
+        val secondUnit = other.closestTo(firstUnit)!!
+        firstUnit to secondUnit
+    }
+
+fun debugText(
+    zergBot: ZergBot,
+    unit: S2Unit,
+    text: String,
+    color: Color = Color.WHITE
+) {
+    zergBot.debug()
+        .debugTextOut(text, unit.position, color, 12)
+}

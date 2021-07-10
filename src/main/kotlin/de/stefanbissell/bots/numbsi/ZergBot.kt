@@ -149,7 +149,7 @@ open class ZergBot(
             ?.also { ability ->
                 val idleBases = baseBuildings
                     .filter {
-                        canCast(it, ability, false)
+                        canCast(it, ability)
                     }
                     .idle
                 val idleBasesWithoutQueen = idleBases
@@ -175,7 +175,7 @@ open class ZergBot(
             ?.also { larva ->
                 trainingAbilities[type]
                     ?.takeIf {
-                        canCast(larva, it, false)
+                        canCast(larva, it)
                     }
                     ?.also {
                         actions()
@@ -230,7 +230,7 @@ open class ZergBot(
             .ofType(upgradeData.unitType)
             .idle
             .filter {
-                canCast(it, upgradeData.ability, false)
+                canCast(it, upgradeData.ability)
             }
             .randomOrNull()
             ?: return
