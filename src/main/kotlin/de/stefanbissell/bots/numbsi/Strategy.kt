@@ -36,10 +36,21 @@ class Strategy(
     }
 
     private fun expandWhenReady(zergBot: ZergBot) {
-        if (zergBot.observation().minerals > 400 && !expansionInProgress(zergBot)) {
+        if (zergBot.observation().minerals > 400 &&
+            !expansionInProgress(zergBot) &&
+            goodSaturation(zergBot)
+        ) {
             expand(zergBot)
         }
     }
+
+    private fun goodSaturation(zergBot: ZergBot) =
+        zergBot.bases
+            .sumOf { it.workersNeeded } < 8
+
+    private fun expansionInProgress(zergBot: ZergBot) =
+        zergBot.pendingCount(Units.ZERG_HATCHERY) > 0 ||
+                zergBot.baseBuildings.inProgress.count() > 0
 
     private fun expand(zergBot: ZergBot) {
         gameMap
@@ -54,10 +65,6 @@ class Strategy(
                 zergBot.tryBuildStructure(Units.ZERG_HATCHERY, it)
             }
     }
-
-    private fun expansionInProgress(zergBot: ZergBot) =
-        zergBot.pendingCount(Units.ZERG_HATCHERY) > 0 ||
-                zergBot.baseBuildings.inProgress.count() > 0
 
     private fun droneUp(zergBot: ZergBot) {
         // TODO
