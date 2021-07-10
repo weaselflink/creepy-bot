@@ -15,6 +15,7 @@ class NumbsiBot(
         bind { singleton { FriendlyChat() } }
         bind { singleton { WorkerManager() } }
         bind { singleton { BuildOrder(instance(), instance()) } }
+        bind { singleton { Strategy(instance()) } }
         bind { singleton { Attacker(instance()) } }
     }
     private val components by di.allInstances<BotComponent>()

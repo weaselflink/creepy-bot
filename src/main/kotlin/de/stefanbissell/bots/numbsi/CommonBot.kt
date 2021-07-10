@@ -54,6 +54,10 @@ open class CommonBot(
 
     private val resourceTypes = mineralFieldTypes + vespeneGeyserTypes
 
+    val supplyCap by lazy {
+        observation().foodCap
+    }
+
     val supplyLeft by lazy {
         observation().foodCap - observation().foodUsed
     }
