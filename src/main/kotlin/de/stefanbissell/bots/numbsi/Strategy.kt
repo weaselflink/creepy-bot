@@ -3,11 +3,14 @@ package de.stefanbissell.bots.numbsi
 import com.github.ocraft.s2client.protocol.data.Units
 
 class Strategy(
+    private val gameMap: GameMap,
     private val buildOrder: BuildOrder
 ) : BotComponent(11) {
 
     override fun onStep(zergBot: ZergBot) {
         if (buildOrder.finished) {
+            expandWhenReady(zergBot)
+            droneUp(zergBot)
             trainTroops(zergBot)
             keepSupplied(zergBot)
         }
@@ -30,5 +33,33 @@ class Strategy(
             return false
         }
         return zergBot.supplyLeft < (zergBot.supplyCap / 10)
+    }
+
+    private fun expandWhenReady(zergBot: ZergBot) {
+        if (zergBot.observation().minerals > 400 && !expansionInProgress(zergBot)) {
+            expand(zergBot)
+        }
+    }
+
+    private fun expand(zergBot: ZergBot) {
+        gameMap
+            .expansions
+            .filter { expansion ->
+                zergBot.baseBuildings.none { it.position.distance(expansion) < 4 }
+            }
+            .minByOrNull {
+                it.toPoint2d().distance(gameMap.ownStart)
+            }
+            ?.also {
+                zergBot.tryBuildStructure(Units.ZERG_HATCHERY, it)
+            }
+    }
+
+    private fun expansionInProgress(zergBot: ZergBot) =
+        zergBot.pendingCount(Units.ZERG_HATCHERY) > 0 ||
+                zergBot.baseBuildings.inProgress.count() > 0
+
+    private fun droneUp(zergBot: ZergBot) {
+        // TODO
     }
 }

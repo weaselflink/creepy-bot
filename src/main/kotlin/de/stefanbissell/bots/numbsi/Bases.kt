@@ -1,15 +1,14 @@
 package de.stefanbissell.bots.numbsi
 
 import com.github.ocraft.s2client.protocol.data.Units
+import kotlin.math.max
 import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
 class Bases(
     private val zergBot: ZergBot
-) {
+) : Iterable<Base> {
 
-    val currentBases: List<Base> by lazy {
-        initBases()
-    }
+    val currentBases: List<Base> = initBases()
 
     private fun initBases() =
         zergBot
@@ -21,6 +20,8 @@ class Bases(
                     building = it
                 )
             }
+
+    override fun iterator() = currentBases.iterator()
 }
 
 class Base(
@@ -100,6 +101,10 @@ class Base(
 
     val optimalWorkerCount: Int by lazy {
         workingExtractors.size * 3 + mineralFields.size * 2
+    }
+
+    val workersNeeded: Int by lazy {
+        max(0, optimalWorkerCount - workerCount)
     }
 
     val surplusWorker: S2Unit? by lazy {

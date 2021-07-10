@@ -169,5 +169,8 @@ val List<Unit>.idle
 val List<Unit>.ready
     get() = filter { it.isReady }
 
+val List<Unit>.inProgress
+    get() = filter { !it.isReady }
+
 val Unit.isReady
     get() = buildProgress == 1f
