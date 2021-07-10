@@ -10,11 +10,11 @@ class NumbsiBot(
 
     private val di = DI {
         bind { singleton { GameMap() } }
+        bind { singleton { QueenController() } }
         bind { singleton { UpgradeTacker() } }
-        bind { singleton { Bases() } }
         bind { singleton { FriendlyChat() } }
-        bind { singleton { WorkerManager(instance()) } }
-        bind { singleton { BuildOrder(instance(), instance(), instance()) } }
+        bind { singleton { WorkerManager() } }
+        bind { singleton { BuildOrder(instance(), instance()) } }
         bind { singleton { Attacker(instance()) } }
     }
     private val components by di.allInstances<BotComponent>()

@@ -6,8 +6,7 @@ import kotlin.random.Random
 
 class BuildOrder(
     private val gameMap: GameMap,
-    upgradeTacker: UpgradeTacker,
-    private val bases: Bases
+    upgradeTacker: UpgradeTacker
 ) : BotComponent() {
 
     private val order = listOf(
@@ -46,7 +45,7 @@ class BuildOrder(
     fun tryBuildStructure(zergBot: ZergBot, type: UnitType) =
         when (type) {
             Units.ZERG_EXTRACTOR -> {
-                bases
+                zergBot.bases
                     .currentBases
                     .flatMap {
                         it.emptyGeysers
@@ -83,7 +82,7 @@ class BuildOrder(
                     }
             }
             else -> {
-                bases
+                zergBot.bases
                     .currentBases
                     .firstOrNull()
                     ?.building

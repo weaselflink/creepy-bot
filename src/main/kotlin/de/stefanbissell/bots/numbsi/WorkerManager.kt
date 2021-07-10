@@ -4,9 +4,7 @@ import com.github.ocraft.s2client.protocol.data.Abilities
 import com.github.ocraft.s2client.protocol.debug.Color
 import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
-class WorkerManager(
-    private val bases: Bases
-) : BotComponent() {
+class WorkerManager : BotComponent() {
 
     private val prioritizeGas = true
     private var lastRebalance = 0.0
@@ -22,11 +20,11 @@ class WorkerManager(
     }
 
     private fun rebalanceWorkers(zergBot: ZergBot) {
-        val basesWithSurplus = bases.currentBases
+        val basesWithSurplus = zergBot.bases.currentBases
             .filter {
                 it.workerCount > it.optimalWorkerCount + 1
             }
-        val basesWithNeed = bases.currentBases
+        val basesWithNeed = zergBot.bases.currentBases
             .filter {
                 it.workerCount < it.optimalWorkerCount
             }
@@ -60,7 +58,7 @@ class WorkerManager(
                 }
             }
         } else {
-            bases.currentBases
+            zergBot.bases.currentBases
                 .forEach { base ->
                     val underSaturatedExtractors = base.underSaturatedExtractors
                     val mineralWorkers = base.mineralWorkers
@@ -120,7 +118,7 @@ class WorkerManager(
     }
 
     private fun S2Unit.backToWork(zergBot: ZergBot) {
-        val closestMinerals = closestMineralsNearBase() ?: closestMinerals(zergBot)
+        val closestMinerals = closestMineralsNearBase(zergBot) ?: closestMinerals(zergBot)
         closestMinerals
             ?.also {
                 zergBot.actions()
@@ -132,8 +130,8 @@ class WorkerManager(
         zergBot.mineralFields
             .closestTo(this)
 
-    private fun S2Unit.closestMineralsNearBase() =
-        bases.currentBases
+    private fun S2Unit.closestMineralsNearBase(zergBot: ZergBot) =
+        zergBot.bases.currentBases
             .flatMap {
                 it.mineralFields
             }

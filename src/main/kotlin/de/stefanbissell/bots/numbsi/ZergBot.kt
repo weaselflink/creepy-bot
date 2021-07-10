@@ -78,6 +78,8 @@ open class ZergBot(
         )
     ).associateBy { it.upgrade }
 
+    val bases by lazy { Bases(this) }
+
     val workers by lazy {
         ownUnits.ofTypes(workerTypes)
     }
