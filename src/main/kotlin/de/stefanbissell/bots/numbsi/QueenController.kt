@@ -10,15 +10,18 @@ class QueenController : BotComponent() {
     }
 
     private fun tryInjectLarva(zergBot: ZergBot) {
+        val readyBases = zergBot
+            .baseBuildings
+            .ready
         val (nearQueens, farQueens) = zergBot.queens
             .partition {
-                val closest = zergBot.baseBuildings.closestDistanceTo(it)
+                val closest = readyBases.closestDistanceTo(it)
                 closest != null && closest < 9
             }
         nearQueens
             .idle
             .mapNotNull { queen ->
-                zergBot.baseBuildings
+                readyBases
                     .firstOrNull { it.position.distance(queen.position) < 9 }
                     ?.let {
                         queen to it
@@ -39,7 +42,7 @@ class QueenController : BotComponent() {
         farQueens
             .idle
             .mapNotNull { queen ->
-                zergBot.baseBuildings
+                readyBases
                     .closestTo(queen)
                     ?.let {
                         queen to it
