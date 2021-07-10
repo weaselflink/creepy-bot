@@ -10,8 +10,12 @@ class QueenController : BotComponent() {
     }
 
     private fun tryInjectLarva(zergBot: ZergBot) {
-        zergBot
-            .ownQueens
+        val (nearQueens, farQueens) = zergBot.queens
+            .partition {
+                val closest = zergBot.baseBuildings.closestDistanceTo(it)
+                closest != null && closest < 9
+            }
+        nearQueens
             .idle
             .mapNotNull { queen ->
                 zergBot.baseBuildings
@@ -22,12 +26,36 @@ class QueenController : BotComponent() {
             }
             .filter { (queen, base) ->
                 zergBot.canCast(queen, Abilities.EFFECT_INJECT_LARVA) &&
-                        base.buffs.none { it.buffId == Buffs.QUEEN_SPAWN_LARVA_TIMER.buffId }
+                        base.buffs.none { it == Buffs.QUEEN_SPAWN_LARVA_TIMER }
             }
-            .randomOrNull()
+            .minByOrNull { (queen, base) ->
+                queen.distance(base)
+            }
             ?.also { (queen, base) ->
                 zergBot.actions()
                     .unitCommand(queen, Abilities.EFFECT_INJECT_LARVA, base, false)
+                return
+            }
+        farQueens
+            .idle
+            .mapNotNull { queen ->
+                zergBot.baseBuildings
+                    .closestTo(queen)
+                    ?.let {
+                        queen to it
+                    }
+            }
+            .filter { (queen, base) ->
+                zergBot.canCast(queen, Abilities.EFFECT_INJECT_LARVA) &&
+                        base.buffs.none { it == Buffs.QUEEN_SPAWN_LARVA_TIMER }
+            }
+            .minByOrNull { (queen, base) ->
+                queen.distance(base)
+            }
+            ?.also { (queen, base) ->
+                zergBot.actions()
+                    .unitCommand(queen, Abilities.EFFECT_INJECT_LARVA, base, false)
+                return
             }
     }
 }

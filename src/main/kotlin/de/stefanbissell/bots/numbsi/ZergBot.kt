@@ -101,7 +101,7 @@ open class ZergBot(
             }
     }
 
-    val ownQueens by lazy {
+    val queens by lazy {
         ownUnits.ofType(Units.ZERG_QUEEN)
     }
 
@@ -154,7 +154,7 @@ open class ZergBot(
                     .idle
                 val idleBasesWithoutQueen = idleBases
                     .filter { idleBase ->
-                        ownQueens
+                        queens
                             .closerThan(idleBase, 9f)
                             .isEmpty()
                     }
