@@ -12,6 +12,19 @@ class Attacker(
     private var enoughTroops = false
 
     override fun onStep(zergBot: ZergBot) {
+        val threats = threats(zergBot)
+        if (threats.isNotEmpty()) {
+            zergBot
+                .ownCombatUnits
+                .forEach { unit ->
+                    threats.closestTo(unit)
+                        ?.also {
+                            zergBot.actions()
+                                .unitCommand(unit, Abilities.ATTACK, it, false)
+                        }
+                }
+            return
+        }
         updateEnoughTroops(zergBot)
         if (enoughTroops) {
             zergBot
@@ -79,4 +92,21 @@ class Attacker(
             troops >= 40 || troops >= (zergBot.gameTime.exactMinutes * 5)
         }
     }
+
+    private fun threats(zergBot: ZergBot) =
+        zergBot.enemyUnits
+            .mapNotNull { unit ->
+                zergBot.observation().getUnitTypeData(false)[unit.type]
+                    ?.let { unit to it }
+            }
+            .mapNotNull { (unit, data) ->
+                if (data.weapons.isNotEmpty()) unit else null
+            }
+            .filter { unit ->
+                val distance = zergBot
+                    .baseBuildings
+                    .closestDistanceTo(unit)
+                    ?: 1000.0
+                distance < 15
+            }
 }
