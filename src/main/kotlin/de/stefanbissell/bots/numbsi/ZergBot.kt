@@ -260,26 +260,6 @@ open class ZergBot(
             }
         }
 
-    fun tryBuildStructure(type: UnitType, target: Unit) {
-        if (!canAfford(type)) {
-            return
-        }
-        val ability = trainingAbilities[type] ?: return
-        val builder = workers
-            .filter {
-                canCast(it, ability)
-            }
-            .randomOrNull()
-            ?: return
-        actions()
-            .unitCommand(
-                builder,
-                ability,
-                target,
-                false
-            )
-    }
-
     fun tryResearchUpgrade(upgrade: Upgrade) {
         val upgradeData = upgrades[upgrade] ?: return
         val building = ownUnits
@@ -299,6 +279,26 @@ open class ZergBot(
     }
 
     fun canAfford(unitType: UnitType) = canAfford(cost(unitType))
+
+    private fun tryBuildStructure(type: UnitType, target: Unit) {
+        if (!canAfford(type)) {
+            return
+        }
+        val ability = trainingAbilities[type] ?: return
+        val builder = workers
+            .filter {
+                canCast(it, ability)
+            }
+            .randomOrNull()
+            ?: return
+        actions()
+            .unitCommand(
+                builder,
+                ability,
+                target,
+                false
+            )
+    }
 
     private fun canAfford(cost: Cost?): Boolean {
         return cost != null &&

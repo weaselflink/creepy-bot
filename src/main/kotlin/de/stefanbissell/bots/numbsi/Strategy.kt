@@ -13,7 +13,6 @@ class Strategy(
 ) : BotComponent(11) {
 
     private val priorities = listOf(
-        Units.ZERG_ROACH_WARREN,
         Units.ZERG_LAIR,
         Upgrades.ZERG_MELEE_WEAPONS_LEVEL1,
         Units.ZERG_SPIRE
