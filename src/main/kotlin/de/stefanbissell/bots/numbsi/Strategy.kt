@@ -1,6 +1,7 @@
 package de.stefanbissell.bots.numbsi
 
 import com.github.ocraft.s2client.protocol.data.Units
+import kotlin.math.ceil
 
 class Strategy(
     private val gameMap: GameMap,
@@ -23,8 +24,11 @@ class Strategy(
     }
 
     private fun keepSupplied(zergBot: ZergBot) {
-        if (needSupply(zergBot) && zergBot.pendingCount(Units.ZERG_OVERLORD) < 1) {
-            zergBot.trainUnit(Units.ZERG_OVERLORD)
+        if (needSupply(zergBot)) {
+            val targetOverlordCount = ceil((zergBot.supplyCap * 0.2) / 8).toInt()
+            if (zergBot.pendingCount(Units.ZERG_OVERLORD) < targetOverlordCount) {
+                zergBot.trainUnit(Units.ZERG_OVERLORD)
+            }
         }
     }
 
@@ -32,7 +36,7 @@ class Strategy(
         if (zergBot.supplyCap >= 200) {
             return false
         }
-        return zergBot.supplyLeft < (zergBot.supplyCap / 10)
+        return zergBot.supplyLeft < (zergBot.supplyCap / 5)
     }
 
     private fun expandWhenReady(zergBot: ZergBot) {
