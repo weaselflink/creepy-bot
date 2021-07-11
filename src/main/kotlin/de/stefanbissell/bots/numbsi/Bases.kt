@@ -37,25 +37,11 @@ class Base(
             }
     }
 
-    private val geysers by lazy {
+    val emptyGeysers by lazy {
         zergBot
-            .vespeneGeysers
+            .emptyGeysers
             .filter {
                 it.position.distance(building.position) < 9f
-            }
-    }
-
-    val emptyGeysers by lazy {
-        geysers
-            .filter { geyser ->
-                zergBot.ownUnits
-                    .ofTypes(
-                        Units.ZERG_EXTRACTOR,
-                        Units.ZERG_EXTRACTOR_RICH
-                    )
-                    .none {
-                        it.position.distance(geyser.position) < 1
-                    }
             }
     }
 

@@ -22,6 +22,7 @@ class Strategy(
         if (buildOrder.finished) {
             expandWhenReady(zergBot)
             droneUp(zergBot)
+            buildExtractors(zergBot)
             buildQueens(zergBot)
             trainTroops(zergBot)
             keepSupplied(zergBot)
@@ -38,6 +39,12 @@ class Strategy(
         }
     }
 
+    private fun buildExtractors(zergBot: ZergBot) {
+        if (zergBot.observation().vespene < 200 && zergBot.pendingCount(Units.ZERG_EXTRACTOR) < 1) {
+            zergBot.tryBuildStructure(gameMap, Units.ZERG_EXTRACTOR)
+        }
+    }
+
     private fun buildQueens(zergBot: ZergBot) {
         if (zergBot.baseBuildings.ready.count() > zergBot.totalCount(Units.ZERG_QUEEN)) {
             zergBot.trainUnit(Units.ZERG_QUEEN)
@@ -45,6 +52,9 @@ class Strategy(
     }
 
     private fun trainTroops(zergBot: ZergBot) {
+        if (zergBot.canAfford(Units.ZERG_MUTALISK)) {
+            zergBot.trainUnit(Units.ZERG_MUTALISK)
+        }
         if (zergBot.canAfford(Units.ZERG_ZERGLING)) {
             zergBot.trainUnit(Units.ZERG_ZERGLING)
         }

@@ -40,7 +40,7 @@ open class CommonBot(
         Units.NEUTRAL_BATTLE_STATION_MINERAL_FIELD, Units.NEUTRAL_BATTLE_STATION_MINERAL_FIELD750
     )
 
-    private val vespeneBuildingTypes = listOf(
+    val vespeneBuildingTypes = listOf(
         Units.ZERG_EXTRACTOR, Units.ZERG_EXTRACTOR_RICH,
         Units.TERRAN_REFINERY, Units.TERRAN_REFINERY_RICH,
         Units.PROTOSS_ASSIMILATOR, Units.PROTOSS_ASSIMILATOR_RICH
@@ -68,6 +68,12 @@ open class CommonBot(
             .asUnits()
     }
 
+    private val allUnits by lazy {
+        observation()
+            .units
+            .asUnits()
+    }
+
     val resources by lazy {
         neutralUnits
             .ofTypes(resourceTypes)
@@ -78,9 +84,18 @@ open class CommonBot(
             .ofTypes(mineralFieldTypes)
     }
 
-    val vespeneGeysers by lazy {
+    private val vespeneGeysers by lazy {
         neutralUnits
             .ofTypes(vespeneGeyserTypes)
+    }
+
+    val emptyGeysers by lazy {
+        vespeneGeysers
+            .filter { geyser ->
+                allUnits
+                    .ofTypes(vespeneBuildingTypes)
+                    .none { it.position.distance(geyser.position) < 1 }
+            }
     }
 
     val ownUnits by lazy {
