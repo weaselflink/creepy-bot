@@ -67,6 +67,8 @@ class Strategy(
     }
 
     private fun droneUp(zergBot: ZergBot) {
-        // TODO
+        if (zergBot.bases.any { it.workersNeeded > 0 }) {
+            zergBot.trainUnit(Units.ZERG_DRONE)
+        }
     }
 }
