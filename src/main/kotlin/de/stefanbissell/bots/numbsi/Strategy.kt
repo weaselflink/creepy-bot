@@ -22,9 +22,25 @@ class Strategy(
         if (buildOrder.finished) {
             expandWhenReady(zergBot)
             droneUp(zergBot)
+            buildQueens(zergBot)
             trainTroops(zergBot)
             keepSupplied(zergBot)
             ensurePriorities(zergBot)
+        }
+    }
+
+    private fun droneUp(zergBot: ZergBot) {
+        if (zergBot.totalCount(Units.ZERG_DRONE) >= 80) {
+            return
+        }
+        if (zergBot.bases.any { it.workersNeeded > 0 }) {
+            zergBot.trainUnit(Units.ZERG_DRONE)
+        }
+    }
+
+    private fun buildQueens(zergBot: ZergBot) {
+        if (zergBot.baseBuildings.ready.count() > zergBot.totalCount(Units.ZERG_QUEEN)) {
+            zergBot.trainUnit(Units.ZERG_QUEEN)
         }
     }
 
@@ -79,12 +95,6 @@ class Strategy(
             ?.also {
                 zergBot.tryBuildStructure(Units.ZERG_HATCHERY, it)
             }
-    }
-
-    private fun droneUp(zergBot: ZergBot) {
-        if (zergBot.bases.any { it.workersNeeded > 0 }) {
-            zergBot.trainUnit(Units.ZERG_DRONE)
-        }
     }
 
     private fun ensurePriorities(zergBot: ZergBot) {

@@ -22,7 +22,7 @@ fun main(args: Array<String>) {
         .loadSettings(args)
         .setParticipants(
             S2Coordinator.createParticipant(Race.ZERG, NumbsiBot(true)),
-            S2Coordinator.createComputer(Race.TERRAN, Difficulty.MEDIUM_HARD)
+            S2Coordinator.createComputer(Race.TERRAN, Difficulty.HARD)
         )
         .launchStarcraft()
         .startGame(LocalMap.of(Path(maps.random())))
