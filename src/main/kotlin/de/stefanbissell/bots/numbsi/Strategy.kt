@@ -40,7 +40,10 @@ class Strategy(
     }
 
     private fun buildExtractors(zergBot: ZergBot) {
-        if (zergBot.observation().vespene < 200 && zergBot.pendingCount(Units.ZERG_EXTRACTOR) < 1) {
+        if (zergBot.observation().vespene < 200 &&
+            zergBot.pendingCount(Units.ZERG_EXTRACTOR) < 1 &&
+            zergBot.bases.maxOf { it.workersNeeded } < 4
+        ) {
             zergBot.tryBuildStructure(gameMap, Units.ZERG_EXTRACTOR)
         }
     }
