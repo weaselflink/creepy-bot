@@ -8,6 +8,7 @@ import com.github.ocraft.s2client.protocol.data.Units
 import com.github.ocraft.s2client.protocol.data.Upgrade
 import com.github.ocraft.s2client.protocol.data.Upgrades
 import com.github.ocraft.s2client.protocol.spatial.Point
+import com.github.ocraft.s2client.protocol.spatial.Point2d
 import com.github.ocraft.s2client.protocol.unit.Unit
 import kotlin.random.Random
 
@@ -282,6 +283,27 @@ open class ZergBot(
     }
 
     fun canAfford(unitType: UnitType) = canAfford(cost(unitType))
+
+    fun attack(unit: Unit, point: Point2d?) {
+        if (point != null) {
+            actions()
+                .unitCommand(unit, Abilities.ATTACK, point, false)
+        }
+    }
+
+    fun attack(unit: Unit, target: Unit?) {
+        if (target != null) {
+            actions()
+                .unitCommand(unit, Abilities.ATTACK, target, false)
+        }
+    }
+
+    fun move(unit: Unit, point: Point2d?) {
+        if (point != null) {
+            actions()
+                .unitCommand(unit, Abilities.MOVE, point, false)
+        }
+    }
 
     private fun tryBuildStructure(type: UnitType, target: Unit) {
         if (!canAfford(type)) {

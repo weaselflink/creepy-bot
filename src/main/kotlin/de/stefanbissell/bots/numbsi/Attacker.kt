@@ -1,6 +1,5 @@
 package de.stefanbissell.bots.numbsi
 
-import com.github.ocraft.s2client.protocol.data.Abilities
 import com.github.ocraft.s2client.protocol.observation.raw.Visibility
 import com.github.ocraft.s2client.protocol.unit.CloakState
 import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
@@ -17,11 +16,7 @@ class Attacker(
             zergBot
                 .ownCombatUnits
                 .forEach { unit ->
-                    threats.closestTo(unit)
-                        ?.also {
-                            zergBot.actions()
-                                .unitCommand(unit, Abilities.ATTACK, it, false)
-                        }
+                    attackBest(zergBot, unit, threats)
                 }
             return
         }
@@ -40,8 +35,7 @@ class Attacker(
                 .ownCombatUnits
                 .forEach {
                     if (it.position.distance(rallyPoint) > 5) {
-                        zergBot.actions()
-                            .unitCommand(it, Abilities.MOVE, rallyPoint, false)
+                        zergBot.move(it, rallyPoint)
                     }
                 }
         }
@@ -55,8 +49,7 @@ class Attacker(
             }
         if (zergBot.observation().getVisibility(gameMap.enemyStart) == Visibility.HIDDEN) {
             idle.forEach {
-                zergBot.actions()
-                    .unitCommand(it, Abilities.ATTACK, gameMap.enemyStart, false)
+                zergBot.attack(it, gameMap.enemyStart)
             }
             return
         }
@@ -64,8 +57,7 @@ class Attacker(
             filter {
                 it.orders.firstOrNull()?.targetedWorldSpacePosition?.isPresent ?: true
             }.forEach {
-                zergBot.actions()
-                    .unitCommand(it, Abilities.ATTACK, enemies.closestTo(it), false)
+                attackBest(zergBot, it, enemies)
             }
             return
         }
@@ -76,8 +68,7 @@ class Attacker(
         if (scoutingTargets.isNotEmpty()) {
             idle
                 .forEach {
-                    zergBot.actions()
-                        .unitCommand(it, Abilities.MOVE, scoutingTargets.random().toPoint2d(), false)
+                    zergBot.move(it, scoutingTargets.random().toPoint2d())
                 }
         }
     }
@@ -109,4 +100,8 @@ class Attacker(
                     ?: 1000.0
                 distance < 15
             }
+
+    private fun attackBest(zergBot: ZergBot, unit: S2Unit, targets: List<S2Unit>) {
+        zergBot.attack(unit, targets.closestTo(unit))
+    }
 }
