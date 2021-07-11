@@ -1,12 +1,23 @@
 package de.stefanbissell.bots.numbsi
 
+import com.github.ocraft.s2client.protocol.data.UnitType
 import com.github.ocraft.s2client.protocol.data.Units
+import com.github.ocraft.s2client.protocol.data.Upgrade
+import com.github.ocraft.s2client.protocol.data.Upgrades
 import kotlin.math.ceil
 
 class Strategy(
     private val gameMap: GameMap,
-    private val buildOrder: BuildOrder
+    private val buildOrder: BuildOrder,
+    private val upgradeTacker: UpgradeTacker
 ) : BotComponent(11) {
+
+    private val priorities = listOf(
+        Units.ZERG_ROACH_WARREN,
+        Units.ZERG_LAIR,
+        Upgrades.ZERG_MELEE_WEAPONS_LEVEL1,
+        Units.ZERG_SPIRE
+    )
 
     override fun onStep(zergBot: ZergBot) {
         if (buildOrder.finished) {
@@ -14,6 +25,7 @@ class Strategy(
             droneUp(zergBot)
             trainTroops(zergBot)
             keepSupplied(zergBot)
+            ensurePriorities(zergBot)
         }
     }
 
@@ -73,6 +85,34 @@ class Strategy(
     private fun droneUp(zergBot: ZergBot) {
         if (zergBot.bases.any { it.workersNeeded > 0 }) {
             zergBot.trainUnit(Units.ZERG_DRONE)
+        }
+    }
+
+    private fun ensurePriorities(zergBot: ZergBot) {
+        priorities
+            .forEach {
+                ensure(zergBot, it)
+            }
+    }
+
+    private fun ensure(zergBot: ZergBot, what: Any) {
+        if (what is UnitType) {
+            ensureBuilding(zergBot, what)
+        }
+        if (what is Upgrade) {
+            ensureUpgrade(zergBot, what)
+        }
+    }
+
+    private fun ensureBuilding(zergBot: ZergBot, unitType: UnitType) {
+        if (zergBot.totalCount(unitType) < 1) {
+            zergBot.tryBuildStructure(gameMap, unitType)
+        }
+    }
+
+    private fun ensureUpgrade(zergBot: ZergBot, upgrade: Upgrade) {
+        if (!upgradeTacker.isCompletedOrPending(zergBot, upgrade)) {
+            zergBot.tryResearchUpgrade(upgrade)
         }
     }
 }

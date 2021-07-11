@@ -10,10 +10,10 @@ class UpgradeTacker : BotComponent() {
         completedUpgrades += upgrade
     }
 
-    fun isCompleted(upgrade: Upgrade) = upgrade in completedUpgrades
+    private fun isCompleted(upgrade: Upgrade) = upgrade in completedUpgrades
 
-    fun isPending(zergBot: ZergBot, upgrade: Upgrade): Boolean {
-        if (isCompleted(upgrade)) return false
+    fun isCompletedOrPending(zergBot: ZergBot, upgrade: Upgrade): Boolean {
+        if (isCompleted(upgrade)) return true
         val upgradeData = zergBot.upgrades[upgrade] ?: return false
         if (upgradeData.after != null && !isCompleted(upgradeData.after)) {
             return false

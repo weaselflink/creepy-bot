@@ -9,6 +9,7 @@ import com.github.ocraft.s2client.protocol.data.Upgrade
 import com.github.ocraft.s2client.protocol.data.Upgrades
 import com.github.ocraft.s2client.protocol.spatial.Point
 import com.github.ocraft.s2client.protocol.unit.Unit
+import kotlin.random.Random
 
 open class ZergBot(
     agent: S2Agent
@@ -204,6 +205,61 @@ open class ZergBot(
             )
     }
 
+    fun tryBuildStructure(gameMap: GameMap, type: UnitType) =
+        when (type) {
+            Units.ZERG_EXTRACTOR -> {
+                bases
+                    .currentBases
+                    .flatMap {
+                        it.emptyGeysers
+                    }
+                    .randomOrNull()
+                    ?.also {
+                        tryBuildStructure(type, it)
+                    }
+            }
+            Units.ZERG_HATCHERY -> {
+                gameMap
+                    .expansions
+                    .filter { expansion ->
+                        baseBuildings.none { it.position.distance(expansion) < 4 }
+                    }
+                    .minByOrNull {
+                        it.toPoint2d().distance(gameMap.ownStart)
+                    }
+                    ?.also {
+                        tryBuildStructure(type, it)
+                    }
+            }
+            Units.ZERG_LAIR -> {
+                baseBuildings
+                    .ready
+                    .filter {
+                        canCast(it, Abilities.MORPH_LAIR, false)
+                    }
+                    .closestTo(gameMap.ownStart)
+                    ?.also {
+                        actions()
+                            .unitCommand(it, Abilities.MORPH_LAIR, false)
+                    }
+            }
+            else -> {
+                bases
+                    .currentBases
+                    .firstOrNull()
+                    ?.building
+                    ?.position
+                    ?.towards(gameMap.center, 6f)
+                    ?.add(Point.of(getRandomScalar(), getRandomScalar()).mul(4.0f))
+                    ?.let {
+                        gameMap.clampToMap(it)
+                    }
+                    ?.also {
+                        tryBuildStructure(type, it)
+                    }
+            }
+        }
+
     fun tryBuildStructure(type: UnitType, target: Unit) {
         if (!canAfford(type)) {
             return
@@ -260,6 +316,10 @@ open class ZergBot(
                     vespene = it.vespeneCost.orElse(0)
                 )
             }
+
+    private fun getRandomScalar(): Float {
+        return Random.nextFloat() * 2 - 1
+    }
 }
 
 data class Cost(

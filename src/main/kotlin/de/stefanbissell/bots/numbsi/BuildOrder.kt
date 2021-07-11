@@ -5,7 +5,7 @@ import com.github.ocraft.s2client.protocol.spatial.Point
 import kotlin.random.Random
 
 class BuildOrder(
-    private val gameMap: GameMap,
+    val gameMap: GameMap,
     upgradeTacker: UpgradeTacker
 ) : BotComponent(10) {
 
@@ -37,74 +37,14 @@ class BuildOrder(
                 }
         }
     }
-
-    fun tryBuildStructure(zergBot: ZergBot, type: UnitType) =
-        when (type) {
-            Units.ZERG_EXTRACTOR -> {
-                zergBot.bases
-                    .currentBases
-                    .flatMap {
-                        it.emptyGeysers
-                    }
-                    .randomOrNull()
-                    ?.also {
-                        zergBot.tryBuildStructure(type, it)
-                    }
-            }
-            Units.ZERG_HATCHERY -> {
-                gameMap
-                    .expansions
-                    .filter { expansion ->
-                        zergBot.baseBuildings.none { it.position.distance(expansion) < 4 }
-                    }
-                    .minByOrNull {
-                        it.toPoint2d().distance(gameMap.ownStart)
-                    }
-                    ?.also {
-                        zergBot.tryBuildStructure(type, it)
-                    }
-            }
-            Units.ZERG_LAIR -> {
-                zergBot
-                    .baseBuildings
-                    .ready
-                    .filter {
-                        zergBot.canCast(it, Abilities.MORPH_LAIR, false)
-                    }
-                    .closestTo(gameMap.ownStart)
-                    ?.also {
-                        zergBot.actions()
-                            .unitCommand(it, Abilities.MORPH_LAIR, false)
-                    }
-            }
-            else -> {
-                zergBot.bases
-                    .currentBases
-                    .firstOrNull()
-                    ?.building
-                    ?.position
-                    ?.towards(gameMap.center, 6f)
-                    ?.add(Point.of(getRandomScalar(), getRandomScalar()).mul(4.0f))
-                    ?.let {
-                        gameMap.clampToMap(it)
-                    }
-                    ?.also {
-                        zergBot.tryBuildStructure(type, it)
-                    }
-            }
-        }
-
-    private fun getRandomScalar(): Float {
-        return Random.nextFloat() * 2 - 1
-    }
 }
 
-sealed class BuildOrderStep {
+private sealed class BuildOrderStep {
 
     abstract fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean
 }
 
-data class DroneUp(val needed: Int) : BuildOrderStep() {
+private data class DroneUp(val needed: Int) : BuildOrderStep() {
     override fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean {
         val count = zergBot.totalCount(Units.ZERG_DRONE)
         if (count < needed) {
@@ -115,7 +55,7 @@ data class DroneUp(val needed: Int) : BuildOrderStep() {
     }
 }
 
-data class TrainUnit(
+private data class TrainUnit(
     val type: UnitType,
     val needed: Int
 ) : BuildOrderStep() {
@@ -129,29 +69,26 @@ data class TrainUnit(
     }
 }
 
-data class BuildStructure(
+private data class BuildStructure(
     val type: UnitType,
     val needed: Int = 1
 ) : BuildOrderStep() {
     override fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean {
         val count = zergBot.totalCount(type)
         if (count < needed) {
-            buildOrder.tryBuildStructure(zergBot, type)
+            zergBot.tryBuildStructure(buildOrder.gameMap, type)
             return false
         }
         return true
     }
 }
 
-data class ResearchUpgrade(
+private data class ResearchUpgrade(
     val upgradeTacker: UpgradeTacker,
     val upgrade: Upgrade
 ) : BuildOrderStep() {
     override fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean {
-        if (upgradeTacker.isCompleted(upgrade)) {
-            return true
-        }
-        if (upgradeTacker.isPending(zergBot, upgrade)) {
+        if (upgradeTacker.isCompletedOrPending(zergBot, upgrade)) {
             return true
         }
         zergBot.tryResearchUpgrade(upgrade)
@@ -159,7 +96,7 @@ data class ResearchUpgrade(
     }
 }
 
-object End : BuildOrderStep() {
+private object End : BuildOrderStep() {
     override fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean {
         buildOrder.finished = true
         return true
