@@ -40,7 +40,7 @@ open class CommonBot(
         Units.NEUTRAL_BATTLE_STATION_MINERAL_FIELD, Units.NEUTRAL_BATTLE_STATION_MINERAL_FIELD750
     )
 
-    val vespeneBuildingTypes = listOf(
+    private val vespeneBuildingTypes = listOf(
         Units.ZERG_EXTRACTOR, Units.ZERG_EXTRACTOR_RICH,
         Units.TERRAN_REFINERY, Units.TERRAN_REFINERY_RICH,
         Units.PROTOSS_ASSIMILATOR, Units.PROTOSS_ASSIMILATOR_RICH
@@ -171,9 +171,6 @@ open class CommonBot(
 
 fun List<Unit>.ofType(type: UnitType) =
     filter { it.type == type }
-
-fun List<Unit>.ofTypes(vararg types: UnitType) =
-    filter { it.type in types }
 
 fun List<Unit>.ofTypes(types: List<UnitType>) =
     filter { it.type in types }

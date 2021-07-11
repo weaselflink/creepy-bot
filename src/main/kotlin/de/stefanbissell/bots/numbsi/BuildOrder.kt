@@ -1,8 +1,6 @@
 package de.stefanbissell.bots.numbsi
 
 import com.github.ocraft.s2client.protocol.data.*
-import com.github.ocraft.s2client.protocol.spatial.Point
-import kotlin.random.Random
 
 class BuildOrder(
     val gameMap: GameMap,

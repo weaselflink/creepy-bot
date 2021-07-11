@@ -1,6 +1,5 @@
 package de.stefanbissell.bots.numbsi
 
-import com.github.ocraft.s2client.protocol.data.Units
 import kotlin.math.max
 import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
