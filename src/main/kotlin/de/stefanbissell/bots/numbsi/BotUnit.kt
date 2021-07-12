@@ -1,17 +1,26 @@
 package de.stefanbissell.bots.numbsi
 
+import com.github.ocraft.s2client.protocol.data.Abilities
 import com.github.ocraft.s2client.protocol.data.UnitTypeData
 import com.github.ocraft.s2client.protocol.data.Weapon
 import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
 class BotUnit(
     val zergBot: ZergBot,
-    val unit: S2Unit,
+    val wrapped: S2Unit,
     private val unitTypeData: UnitTypeData
 ) {
 
+    val position
+        get() = wrapped.position
+
+    fun attack(target: BotUnit) {
+        zergBot.actions()
+            .unitCommand(wrapped, Abilities.ATTACK, target.wrapped, false)
+    }
+
     private val isFlying by lazy {
-        unit.flying.orElse(false)
+        wrapped.flying.orElse(false)
     }
 
     fun canAttack(target: BotUnit) =

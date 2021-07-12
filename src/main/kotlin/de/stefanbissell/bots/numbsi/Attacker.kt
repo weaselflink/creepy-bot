@@ -121,7 +121,7 @@ class Attacker(
             }
             .closestTo(attacker)
             ?.also {
-                zergBot.attack(unit, it)
+                attacker.attack(it)
             }
     }
 }

@@ -21,8 +21,6 @@ fun Point.distance(point: Point2d) =
 fun S2Unit.distance(other: S2Unit) =
     position.distance(other.position.toPoint2d())
 
-fun Point2d.toPoint(): Point = Point.of(x, y)
-
 fun List<S2Unit>.closerThan(unit: S2Unit, distance: Float) =
     filter { it.position.toPoint2d().distance(unit.position.toPoint2d()) < distance }
 
@@ -34,7 +32,7 @@ fun List<S2Unit>.closestDistanceTo(point: Point2d): Double? =
     minOfOrNull { it.position.distance(point) }
 
 fun List<BotUnit>.closestTo(unit: BotUnit) =
-    map { it.unit }.closestTo(unit.unit)
+    minByOrNull { it.position.distance(unit.position) }
 
 fun List<S2Unit>.closestTo(unit: S2Unit) = closestTo(unit.position)
 
