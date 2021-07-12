@@ -9,9 +9,12 @@ import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
 class BotUnit(
     val zergBot: ZergBot,
-    val wrapped: S2Unit,
-    private val unitTypeData: UnitTypeData
+    val wrapped: S2Unit
 ) {
+
+    private val unitTypeData: UnitTypeData by lazy {
+        zergBot.observation().getUnitTypeData(false)[wrapped.type]!!
+    }
 
     val position: Point
         get() = wrapped.position
@@ -54,6 +57,5 @@ class BotUnit(
 fun S2Unit.toBotUnit(zergBot: ZergBot) =
     BotUnit(
         zergBot,
-        this,
-        zergBot.observation().getUnitTypeData(false)[this.type]!!
+        this
     )
