@@ -34,12 +34,12 @@ class BotUnit(
             .unitCommand(wrapped, Abilities.ATTACK, target, false)
     }
 
+    fun canAttack(target: BotUnit) =
+        (!target.isFlying && canAttackGround) || (target.isFlying && canAttackAir)
+
     private val isFlying by lazy {
         wrapped.flying.orElse(false)
     }
-
-    fun canAttack(target: BotUnit) =
-        (!target.isFlying && canAttackGround) || (target.isFlying && canAttackAir)
 
     private val canAttackAir by lazy {
         unitTypeData.weapons.any {
