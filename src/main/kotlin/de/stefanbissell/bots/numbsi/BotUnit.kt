@@ -3,6 +3,8 @@ package de.stefanbissell.bots.numbsi
 import com.github.ocraft.s2client.protocol.data.Abilities
 import com.github.ocraft.s2client.protocol.data.UnitTypeData
 import com.github.ocraft.s2client.protocol.data.Weapon
+import com.github.ocraft.s2client.protocol.spatial.Point
+import com.github.ocraft.s2client.protocol.spatial.Point2d
 import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
 class BotUnit(
@@ -11,12 +13,22 @@ class BotUnit(
     private val unitTypeData: UnitTypeData
 ) {
 
-    val position
+    val position: Point
         get() = wrapped.position
+
+    fun move(target: Point2d) {
+        zergBot.actions()
+            .unitCommand(wrapped, Abilities.MOVE, target, false)
+    }
 
     fun attack(target: BotUnit) {
         zergBot.actions()
             .unitCommand(wrapped, Abilities.ATTACK, target.wrapped, false)
+    }
+
+    fun attack(target: Point2d) {
+        zergBot.actions()
+            .unitCommand(wrapped, Abilities.ATTACK, target, false)
     }
 
     private val isFlying by lazy {

@@ -2,8 +2,6 @@ package de.stefanbissell.bots.numbsi
 
 import com.github.ocraft.s2client.protocol.data.Units
 import com.github.ocraft.s2client.protocol.observation.raw.Visibility
-import com.github.ocraft.s2client.protocol.unit.CloakState
-import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
 class Attacker(
     private val gameMap: GameMap
@@ -16,8 +14,9 @@ class Attacker(
         if (threats.isNotEmpty()) {
             zergBot
                 .ownCombatUnits
+                .toBotUnits(zergBot)
                 .forEach { unit ->
-                    attackBest(zergBot, unit, threats)
+                    attackBest(unit, threats)
                 }
             return
         }
@@ -25,6 +24,7 @@ class Attacker(
         if (enoughTroops) {
             zergBot
                 .ownCombatUnits
+                .toBotUnits(zergBot)
                 .orderAttack(zergBot)
         } else if (zergBot.ownCombatUnits.isNotEmpty()) {
             val rallyPoint = zergBot
@@ -42,23 +42,20 @@ class Attacker(
         }
     }
 
-    private fun List<S2Unit>.orderAttack(zergBot: ZergBot) {
+    private fun List<BotUnit>.orderAttack(zergBot: ZergBot) {
         val enemies = zergBot.enemyUnits
-            .filter {
-                !it.flying.orElse(true) &&
-                        it.cloakState.orElse(CloakState.CLOAKED_UNKNOWN) != CloakState.CLOAKED
-            }
+            .toBotUnits(zergBot)
         if (zergBot.observation().getVisibility(gameMap.enemyStart) == Visibility.HIDDEN) {
             idle.forEach {
-                zergBot.attack(it, gameMap.enemyStart)
+                it.attack(gameMap.enemyStart)
             }
             return
         }
         if (enemies.isNotEmpty()) {
             filter {
-                it.orders.firstOrNull()?.targetedWorldSpacePosition?.isPresent ?: true
+                it.wrapped.orders.firstOrNull()?.targetedWorldSpacePosition?.isPresent ?: true
             }.forEach {
-                attackBest(zergBot, it, enemies)
+                attackBest(it, enemies)
             }
             return
         }
@@ -69,7 +66,7 @@ class Attacker(
         if (scoutingTargets.isNotEmpty()) {
             idle
                 .forEach {
-                    zergBot.move(it, scoutingTargets.random().toPoint2d())
+                    it.move(scoutingTargets.random().toPoint2d())
                 }
         }
     }
@@ -109,13 +106,12 @@ class Attacker(
                     ?: 1000.0
                 distance < 15
             }
-
-    private fun attackBest(zergBot: ZergBot, unit: S2Unit, targets: List<S2Unit>) {
-        val attacker = unit.toBotUnit(zergBot)
-        targets
             .map {
                 it.toBotUnit(zergBot)
             }
+
+    private fun attackBest(attacker: BotUnit, targets: List<BotUnit>) {
+        targets
             .filter {
                 attacker.canAttack(it)
             }

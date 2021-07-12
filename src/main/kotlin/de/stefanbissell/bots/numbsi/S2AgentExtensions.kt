@@ -61,3 +61,13 @@ fun debugText(
     zergBot.debug()
         .debugTextOut(text, unit.position, color, 12)
 }
+
+fun List<S2Unit>.toBotUnits(zergBot: ZergBot) =
+    map {
+        it.toBotUnit(zergBot)
+    }
+
+val List<BotUnit>.idle
+    get() = filter {
+        it.wrapped.orders.isEmpty()
+    }
