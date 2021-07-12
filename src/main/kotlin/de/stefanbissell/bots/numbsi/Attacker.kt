@@ -11,10 +11,11 @@ class Attacker(
 
     override fun onStep(zergBot: ZergBot) {
         val threats = threats(zergBot)
+        val ownCombatUnits = zergBot
+            .ownCombatUnits
+            .toBotUnits(zergBot)
         if (threats.isNotEmpty()) {
-            zergBot
-                .ownCombatUnits
-                .toBotUnits(zergBot)
+            ownCombatUnits
                 .forEach { unit ->
                     attackBest(unit, threats)
                 }
@@ -22,21 +23,17 @@ class Attacker(
         }
         updateEnoughTroops(zergBot)
         if (enoughTroops) {
-            zergBot
-                .ownCombatUnits
-                .toBotUnits(zergBot)
+            ownCombatUnits
                 .orderAttack(zergBot)
         } else if (zergBot.ownCombatUnits.isNotEmpty()) {
-            val rallyPoint = zergBot
-                .ownCombatUnits
+            val rallyPoint = ownCombatUnits
                 .map { it.position.toPoint2d() }
                 .reduce { acc, point -> acc.add(point) }
                 .div(zergBot.ownCombatUnits.count().toFloat())
-            zergBot
-                .ownCombatUnits
+            ownCombatUnits
                 .forEach {
                     if (it.position.distance(rallyPoint) > 5) {
-                        zergBot.move(it, rallyPoint)
+                        it.move(rallyPoint)
                     }
                 }
         }
