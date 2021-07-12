@@ -5,7 +5,7 @@ import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
 class Bases(
     private val zergBot: ZergBot
-) : Iterable<Base> {
+) : AbstractCollection<Base>() {
 
     val currentBases: List<Base> = initBases()
 
@@ -21,6 +21,9 @@ class Bases(
             }
 
     override fun iterator() = currentBases.iterator()
+
+    override val size: Int
+        get() = currentBases.size
 }
 
 class Base(

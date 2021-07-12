@@ -1,6 +1,7 @@
 package de.stefanbissell.bots.numbsi
 
 import com.github.ocraft.s2client.protocol.data.Abilities
+import com.github.ocraft.s2client.protocol.data.UnitType
 import com.github.ocraft.s2client.protocol.data.UnitTypeData
 import com.github.ocraft.s2client.protocol.data.Weapon
 import com.github.ocraft.s2client.protocol.spatial.Point
@@ -15,6 +16,9 @@ class BotUnit(
     private val unitTypeData: UnitTypeData by lazy {
         zergBot.observation().getUnitTypeData(false)[wrapped.type]!!
     }
+
+    val type: UnitType
+        get() = wrapped.type
 
     val position: Point
         get() = wrapped.position

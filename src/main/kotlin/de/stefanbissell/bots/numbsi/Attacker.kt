@@ -11,26 +11,26 @@ class Attacker(
 
     override fun onStep(zergBot: ZergBot) {
         val threats = threats(zergBot)
-        val ownCombatUnits = zergBot
+        val attackers = zergBot
             .ownCombatUnits
             .toBotUnits(zergBot)
         if (threats.isNotEmpty()) {
-            ownCombatUnits
-                .forEach { unit ->
-                    attackBest(unit, threats)
+            attackers
+                .forEach {
+                    it.attackBest(threats)
                 }
             return
         }
-        updateEnoughTroops(zergBot)
+        updateEnoughTroops(zergBot, attackers)
         if (enoughTroops) {
-            ownCombatUnits
+            attackers
                 .orderAttack(zergBot)
         } else if (zergBot.ownCombatUnits.isNotEmpty()) {
-            val rallyPoint = ownCombatUnits
+            val rallyPoint = attackers
                 .map { it.position.toPoint2d() }
                 .reduce { acc, point -> acc.add(point) }
                 .div(zergBot.ownCombatUnits.count().toFloat())
-            ownCombatUnits
+            attackers
                 .forEach {
                     if (it.position.distance(rallyPoint) > 5) {
                         it.move(rallyPoint)
@@ -52,7 +52,7 @@ class Attacker(
             filter {
                 it.wrapped.orders.firstOrNull()?.targetedWorldSpacePosition?.isPresent ?: true
             }.forEach {
-                attackBest(it, enemies)
+                it.attackBest(enemies)
             }
             return
         }
@@ -68,10 +68,9 @@ class Attacker(
         }
     }
 
-    private fun updateEnoughTroops(zergBot: ZergBot) {
+    private fun updateEnoughTroops(zergBot: ZergBot, ownCombatUnits: List<BotUnit>) {
         @Suppress("USELESS_CAST")
-        val troops = zergBot
-            .ownCombatUnits
+        val troops = ownCombatUnits
             .sumOf {
                 when (it.type) {
                     Units.ZERG_MUTALISK -> 3
@@ -107,14 +106,14 @@ class Attacker(
                 it.toBotUnit(zergBot)
             }
 
-    private fun attackBest(attacker: BotUnit, targets: List<BotUnit>) {
+    private fun BotUnit.attackBest(targets: List<BotUnit>) {
         targets
             .filter {
-                attacker.canAttack(it)
+                canAttack(it)
             }
-            .closestTo(attacker)
+            .closestTo(this)
             ?.also {
-                attacker.attack(it)
+                attack(it)
             }
     }
 }
