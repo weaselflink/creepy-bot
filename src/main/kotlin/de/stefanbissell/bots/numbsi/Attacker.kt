@@ -1,5 +1,6 @@
 package de.stefanbissell.bots.numbsi
 
+import com.github.ocraft.s2client.protocol.data.Units
 import com.github.ocraft.s2client.protocol.observation.raw.Visibility
 import com.github.ocraft.s2client.protocol.unit.CloakState
 import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
@@ -74,9 +75,17 @@ class Attacker(
     }
 
     private fun updateEnoughTroops(zergBot: ZergBot) {
+        @Suppress("USELESS_CAST")
         val troops = zergBot
             .ownCombatUnits
-            .count()
+            .sumOf {
+                when (it.type) {
+                    Units.ZERG_MUTALISK -> 3
+                    Units.ZERG_ROACH -> 2
+                    Units.ZERG_HYDRALISK -> 2
+                    else -> 1
+                } as Int
+            }
         enoughTroops = if (enoughTroops) {
             troops >= 30 || troops >= (zergBot.gameTime.exactMinutes * 3)
         } else {
@@ -102,6 +111,17 @@ class Attacker(
             }
 
     private fun attackBest(zergBot: ZergBot, unit: S2Unit, targets: List<S2Unit>) {
-        zergBot.attack(unit, targets.closestTo(unit))
+        val attacker = unit.toBotUnit(zergBot)
+        targets
+            .map {
+                it.toBotUnit(zergBot)
+            }
+            .filter {
+                attacker.canAttack(it)
+            }
+            .closestTo(attacker)
+            ?.also {
+                zergBot.attack(unit, it)
+            }
     }
 }

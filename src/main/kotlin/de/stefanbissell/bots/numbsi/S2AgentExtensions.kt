@@ -33,6 +33,9 @@ fun List<S2Unit>.closestDistanceTo(unit: S2Unit) = closestDistanceTo(unit.positi
 fun List<S2Unit>.closestDistanceTo(point: Point2d): Double? =
     minOfOrNull { it.position.distance(point) }
 
+fun List<BotUnit>.closestTo(unit: BotUnit) =
+    map { it.unit }.closestTo(unit.unit)
+
 fun List<S2Unit>.closestTo(unit: S2Unit) = closestTo(unit.position)
 
 fun List<S2Unit>.closestTo(point: Point) = closestTo(point.toPoint2d())
