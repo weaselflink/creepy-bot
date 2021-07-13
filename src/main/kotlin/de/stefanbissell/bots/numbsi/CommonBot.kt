@@ -121,6 +121,12 @@ open class CommonBot(
 
     val gameTime = GameTime(observation().gameLoop)
 
+    fun trainingAbility(unityType: UnitType) =
+        observation()
+            .getUnitTypeData(false)[unityType]
+            ?.ability
+            ?.orElse(null)
+
     fun canCast(
         unit: Unit,
         ability: Ability,

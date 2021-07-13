@@ -32,19 +32,13 @@ open class ZergBot(
         Units.ZERG_MUTALISK
     )
 
-    private val trainingAbilities = mapOf(
+    private val buildingAbilities = mapOf(
         Units.ZERG_HATCHERY to Abilities.BUILD_HATCHERY,
         Units.ZERG_SPAWNING_POOL to Abilities.BUILD_SPAWNING_POOL,
         Units.ZERG_ROACH_WARREN to Abilities.BUILD_ROACH_WARREN,
         Units.ZERG_SPIRE to Abilities.BUILD_SPIRE,
         Units.ZERG_EXTRACTOR to Abilities.BUILD_EXTRACTOR,
-        Units.ZERG_EVOLUTION_CHAMBER to Abilities.BUILD_EVOLUTION_CHAMBER,
-        Units.ZERG_QUEEN to Abilities.TRAIN_QUEEN,
-        Units.ZERG_DRONE to Abilities.TRAIN_DRONE,
-        Units.ZERG_OVERLORD to Abilities.TRAIN_OVERLORD,
-        Units.ZERG_ZERGLING to Abilities.TRAIN_ZERGLING,
-        Units.ZERG_ROACH to Abilities.TRAIN_ROACH,
-        Units.ZERG_MUTALISK to Abilities.TRAIN_MUTALISK
+        Units.ZERG_EVOLUTION_CHAMBER to Abilities.BUILD_EVOLUTION_CHAMBER
     )
 
     val upgrades = listOf(
@@ -113,16 +107,16 @@ open class ZergBot(
         return unit
             .orders
             .map { it.ability }
-            .any { it in trainingAbilities.values }
+            .any { it in buildingAbilities.values }
     }
 
     fun pendingCount(type: UnitType): Int {
-        return trainingAbilities[type]
+        return trainingAbility(type)
             ?.let { ability ->
                 ownUnits
                     .count { unit ->
                         unit.orders.any {
-                            it.ability.abilityId == ability.abilityId
+                            it.ability == ability
                         }
                     }
                     .let {
@@ -149,7 +143,7 @@ open class ZergBot(
     }
 
     private fun trainQueen() {
-        trainingAbilities[Units.ZERG_QUEEN]
+        trainingAbility(Units.ZERG_QUEEN)
             ?.also { ability ->
                 val idleBases = baseBuildings
                     .filter {
@@ -177,7 +171,7 @@ open class ZergBot(
         idleLarva
             .randomOrNull()
             ?.also { larva ->
-                trainingAbilities[type]
+                trainingAbility(type)
                     ?.takeIf {
                         canCast(larva, it)
                     }
@@ -192,7 +186,7 @@ open class ZergBot(
         if (!canAfford(type)) {
             return
         }
-        val ability = trainingAbilities[type] ?: return
+        val ability = trainingAbility(type) ?: return
         val builder = workers
             .filter {
                 canCast(it, ability)
@@ -286,7 +280,7 @@ open class ZergBot(
         if (!canAfford(type)) {
             return
         }
-        val ability = trainingAbilities[type] ?: return
+        val ability = trainingAbility(type) ?: return
         val builder = workers
             .filter {
                 canCast(it, ability)
