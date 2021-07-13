@@ -248,9 +248,8 @@ open class ZergBot(
             }
             else -> {
                 bases
-                    .currentBases
-                    .firstOrNull()
-                    ?.building
+                    .map { it.building }
+                    .closestTo(gameMap.ownStart)
                     ?.position
                     ?.towards(gameMap.center, 6f)
                     ?.add(Point.of(getRandomScalar(), getRandomScalar()).mul(4.0f))
