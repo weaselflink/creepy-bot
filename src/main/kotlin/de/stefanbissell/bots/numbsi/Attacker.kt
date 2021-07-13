@@ -80,9 +80,9 @@ class Attacker(
                 } as Int
             }
         enoughTroops = if (enoughTroops) {
-            troops >= 30 || troops >= (zergBot.gameTime.exactMinutes * 3)
+            troops >= 30 || troops >= (zergBot.gameTime.exactMinutes * 2)
         } else {
-            troops >= 40 || troops >= (zergBot.gameTime.exactMinutes * 5)
+            troops >= 40 || troops >= (zergBot.gameTime.exactMinutes * 3)
         }
     }
 
