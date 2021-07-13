@@ -3,6 +3,7 @@ package de.stefanbissell.bots.numbsi
 import com.github.ocraft.s2client.protocol.debug.Color
 import com.github.ocraft.s2client.protocol.spatial.Point
 import com.github.ocraft.s2client.protocol.spatial.Point2d
+import java.util.function.Predicate
 import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
 fun Point.towards(to: Point, distance: Float): Point {

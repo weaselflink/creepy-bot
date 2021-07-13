@@ -6,6 +6,7 @@ val s2client_version: String by project
 val kodein_version: String by project
 val junit_version: String by project
 val strikt_version: String by project
+val mockk_version: String by project
 
 group = "de.stefanbissell.bots.numbsi"
 version = "0.1"
@@ -32,6 +33,7 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter:$junit_version")
     testImplementation("io.strikt:strikt-core:$strikt_version")
+    testImplementation("io.mockk:mockk:$mockk_version")
 }
 
 tasks {

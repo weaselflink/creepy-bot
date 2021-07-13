@@ -111,6 +111,10 @@ class Attacker(
             .filter {
                 canAttack(it)
             }
+            .prioritize(
+                { it.canAttack(this) },
+                { it.inRange(this) }
+            )
             .closestTo(this)
             ?.also {
                 attack(it)
