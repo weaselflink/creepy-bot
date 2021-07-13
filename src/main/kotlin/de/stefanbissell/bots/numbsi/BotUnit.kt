@@ -1,21 +1,33 @@
 package de.stefanbissell.bots.numbsi
 
-import com.github.ocraft.s2client.protocol.data.Abilities
-import com.github.ocraft.s2client.protocol.data.UnitType
-import com.github.ocraft.s2client.protocol.data.UnitTypeData
-import com.github.ocraft.s2client.protocol.data.Weapon
+import com.github.ocraft.s2client.bot.gateway.UnitInPool
+import com.github.ocraft.s2client.protocol.data.*
 import com.github.ocraft.s2client.protocol.spatial.Point
 import com.github.ocraft.s2client.protocol.spatial.Point2d
+import com.github.ocraft.s2client.protocol.unit.Tag
+import com.github.ocraft.s2client.protocol.unit.UnitOrder
 import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
 class BotUnit(
-    val zergBot: ZergBot,
+    private val bot: CommonBot,
     val wrapped: S2Unit
 ) {
 
     private val unitTypeData: UnitTypeData by lazy {
-        zergBot.observation().getUnitTypeData(false)[wrapped.type]!!
+        bot.observation().getUnitTypeData(false)[wrapped.type]!!
     }
+
+    val tag: Tag
+        get() = wrapped.tag
+
+    val buffs: Set<Buff>
+        get() = wrapped.buffs
+
+    val weapons: Set<Weapon>
+        get() = unitTypeData.weapons
+
+    val isReady
+        get() = wrapped.buildProgress == 1f
 
     val type: UnitType
         get() = wrapped.type
@@ -23,23 +35,51 @@ class BotUnit(
     val position: Point
         get() = wrapped.position
 
-    fun distanceTo(target: BotUnit) =
+    val orders: List<UnitOrder>
+        get() = wrapped.orders
+
+    val vespeneContents: Int
+        get() = wrapped.vespeneContents.orElse(0)
+
+    private fun distanceTo(target: BotUnit) =
         position.toPoint2d().distance(target.position.toPoint2d())
 
+    fun use(ability: Ability) {
+        bot.actions()
+            .unitCommand(wrapped, ability, false)
+    }
+
+    fun use(ability: Ability, target: Point2d) {
+        bot.actions()
+            .unitCommand(wrapped, ability, target, false)
+    }
+
+    fun use(ability: Ability, target: BotUnit) {
+        bot.actions()
+            .unitCommand(wrapped, ability, target.wrapped, false)
+    }
+
     fun move(target: Point2d) {
-        zergBot.actions()
-            .unitCommand(wrapped, Abilities.MOVE, target, false)
+        use(Abilities.MOVE, target)
     }
 
     fun attack(target: BotUnit) {
-        zergBot.actions()
-            .unitCommand(wrapped, Abilities.ATTACK, target.wrapped, false)
+        use(Abilities.ATTACK, target)
     }
 
     fun attack(target: Point2d) {
-        zergBot.actions()
-            .unitCommand(wrapped, Abilities.ATTACK, target, false)
+        use(Abilities.ATTACK, target)
     }
+
+    fun canCast(
+        ability: Ability,
+        ignoreResourceRequirements: Boolean = false
+    ) =
+        bot.query()
+            .getAbilitiesForUnit(wrapped, ignoreResourceRequirements)
+            .abilities
+            .map { it.ability }
+            .contains(ability)
 
     fun canAttack(target: BotUnit) =
         (!target.isFlying && canAttackGround) || (target.isFlying && canAttackAir)
@@ -51,7 +91,6 @@ class BotUnit(
                     .filter { it.canAttack(target) }
                     .any { it.range >= distance }
             }
-
 
     private val isFlying by lazy {
         wrapped.flying.orElse(false)
@@ -79,8 +118,54 @@ class BotUnit(
         get() = targetType == Weapon.TargetType.ANY || targetType == Weapon.TargetType.GROUND
 }
 
-fun S2Unit.toBotUnit(zergBot: ZergBot) =
-    BotUnit(
-        zergBot,
-        this
-    )
+fun S2Unit.toBotUnit(bot: CommonBot) = BotUnit(bot, this)
+
+fun Iterable<UnitInPool>.toBotUnits(bot: CommonBot) =
+    map { it.unit().toBotUnit(bot) }
+
+fun Iterable<S2Unit>.asBotUnits(bot: CommonBot) =
+    map { it.toBotUnit(bot) }
+
+fun List<BotUnit>.ofType(type: UnitType) =
+    filter { it.type == type }
+
+fun List<BotUnit>.ofTypes(types: List<UnitType>) =
+    filter { it.type in types }
+
+val List<BotUnit>.ready
+    get() = filter { it.isReady }
+
+val List<BotUnit>.inProgress
+    get() = filter { !it.isReady }
+
+val List<BotUnit>.idle
+    get() = filter {
+        it.wrapped.orders.isEmpty()
+    }
+
+fun List<BotUnit>.closestTo(unit: BotUnit) =
+    minByOrNull { it.position.distance(unit.position) }
+
+fun List<BotUnit>.closestTo(point: Point2d) =
+    minByOrNull { it.position.distance(point) }
+
+fun List<BotUnit>.closerThan(unit: BotUnit, distance: Float) =
+    filter { it.position.toPoint2d().distance(unit.position.toPoint2d()) < distance }
+
+fun List<BotUnit>.closestDistanceTo(point: Point2d): Double? =
+    minOfOrNull { it.position.distance(point) }
+
+fun List<BotUnit>.closestDistanceTo(point: Point) = closestDistanceTo(point.toPoint2d())
+
+fun List<BotUnit>.closestDistanceTo(unit: BotUnit) = closestDistanceTo(unit.position)
+
+fun List<BotUnit>.closestPair(other: List<BotUnit>): Pair<BotUnit, BotUnit>? =
+    if (this.isEmpty() || other.isEmpty()) {
+        null
+    } else {
+        val firstUnit = minByOrNull {
+            other.closestDistanceTo(it)!!
+        }!!
+        val secondUnit = other.closestTo(firstUnit)!!
+        firstUnit to secondUnit
+    }

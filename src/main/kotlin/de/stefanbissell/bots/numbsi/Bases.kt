@@ -1,7 +1,6 @@
 package de.stefanbissell.bots.numbsi
 
 import kotlin.math.max
-import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
 class Bases(
     private val zergBot: ZergBot
@@ -28,7 +27,7 @@ class Bases(
 
 class Base(
     private val zergBot: ZergBot,
-    val building: S2Unit
+    val building: BotUnit
 ) {
 
     val mineralFields by lazy {
@@ -58,7 +57,7 @@ class Base(
     val underSaturatedExtractors by lazy {
         workingExtractors
             .filter {
-                it.assignedHarvesters.orElse(0) < 3
+                it.wrapped.assignedHarvesters.orElse(0) < 3
             }
     }
 
@@ -95,7 +94,7 @@ class Base(
         max(0, optimalWorkerCount - workerCount)
     }
 
-    val surplusWorker: S2Unit? by lazy {
+    val surplusWorker: BotUnit? by lazy {
         if (workerCount <= optimalWorkerCount) {
             null
         } else {

@@ -2,7 +2,6 @@ package de.stefanbissell.bots.numbsi
 
 import com.github.ocraft.s2client.protocol.data.Abilities
 import com.github.ocraft.s2client.protocol.debug.Color
-import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
 
 class WorkerManager : BotComponent() {
 
@@ -42,8 +41,7 @@ class WorkerManager : BotComponent() {
                     extractors
                         .closestTo(worker)
                         ?.also {
-                            zergBot.actions()
-                                .unitCommand(worker, Abilities.HARVEST_GATHER_DRONE, it, false)
+                            worker.use(Abilities.HARVEST_GATHER_DRONE, it)
                         }
                 } else {
                     basesWithNeed
@@ -52,8 +50,7 @@ class WorkerManager : BotComponent() {
                         }
                         .closestTo(worker)
                         ?.also {
-                            zergBot.actions()
-                                .unitCommand(worker, Abilities.HARVEST_GATHER_DRONE, it, false)
+                            worker.use(Abilities.HARVEST_GATHER_DRONE, it)
                         }
                 }
             }
@@ -69,8 +66,7 @@ class WorkerManager : BotComponent() {
                                 underSaturatedExtractors
                                     .closestTo(worker)
                                     ?.also {
-                                        zergBot.actions()
-                                            .unitCommand(worker, Abilities.HARVEST_GATHER_DRONE, it, false)
+                                        worker.use(Abilities.HARVEST_GATHER_DRONE, it)
                                     }
 
                             }
@@ -107,20 +103,19 @@ class WorkerManager : BotComponent() {
             }
     }
 
-    private fun S2Unit.backToWork(zergBot: ZergBot) {
+    private fun BotUnit.backToWork(zergBot: ZergBot) {
         val closestMinerals = closestMineralsNearBase(zergBot) ?: closestMinerals(zergBot)
         closestMinerals
             ?.also {
-                zergBot.actions()
-                    .unitCommand(this, Abilities.HARVEST_GATHER_DRONE, it, false)
+                use(Abilities.HARVEST_GATHER_DRONE, it)
             }
     }
 
-    private fun S2Unit.closestMinerals(zergBot: ZergBot) =
+    private fun BotUnit.closestMinerals(zergBot: ZergBot) =
         zergBot.mineralFields
             .closestTo(this)
 
-    private fun S2Unit.closestMineralsNearBase(zergBot: ZergBot) =
+    private fun BotUnit.closestMineralsNearBase(zergBot: ZergBot) =
         zergBot.bases.currentBases
             .flatMap {
                 it.mineralFields

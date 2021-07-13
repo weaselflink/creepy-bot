@@ -1,14 +1,8 @@
 package de.stefanbissell.bots.numbsi
 
 import com.github.ocraft.s2client.bot.S2Agent
-import com.github.ocraft.s2client.protocol.data.Abilities
-import com.github.ocraft.s2client.protocol.data.Ability
-import com.github.ocraft.s2client.protocol.data.UnitType
-import com.github.ocraft.s2client.protocol.data.Units
-import com.github.ocraft.s2client.protocol.data.Upgrade
-import com.github.ocraft.s2client.protocol.data.Upgrades
+import com.github.ocraft.s2client.protocol.data.*
 import com.github.ocraft.s2client.protocol.spatial.Point
-import com.github.ocraft.s2client.protocol.unit.Unit
 import kotlin.random.Random
 
 open class ZergBot(
@@ -95,7 +89,7 @@ open class ZergBot(
         ownUnits.ofType(Units.ZERG_QUEEN)
     }
 
-    fun isBuilding(unit: Unit): Boolean {
+    fun isBuilding(unit: BotUnit): Boolean {
         return unit
             .orders
             .map { it.ability }
@@ -139,7 +133,7 @@ open class ZergBot(
             ?.also { ability ->
                 val idleBases = baseBuildings
                     .filter {
-                        canCast(it, ability)
+                        it.canCast(ability)
                     }
                     .idle
                 val idleBasesWithoutQueen = idleBases
@@ -152,8 +146,7 @@ open class ZergBot(
                     .ifEmpty { idleBases }
                     .randomOrNull()
                     ?.also {
-                        actions()
-                            .unitCommand(it, ability, false)
+                        it.use(ability)
                     }
             }
 
@@ -165,11 +158,10 @@ open class ZergBot(
             ?.also { larva ->
                 trainingAbility(type)
                     ?.takeIf {
-                        canCast(larva, it)
+                        larva.canCast(it)
                     }
                     ?.also {
-                        actions()
-                            .unitCommand(larva, it, false)
+                        larva.use(it)
                     }
             }
     }
@@ -181,20 +173,14 @@ open class ZergBot(
         val ability = trainingAbility(type) ?: return
         val builder = workers
             .filter {
-                canCast(it, ability)
+                it.canCast(ability)
             }
             .randomOrNull()
             ?: return
-        actions()
-            .unitCommand(
-                builder,
-                ability,
-                position.toPoint2d(),
-                false
-            )
+        builder.use(ability, position.toPoint2d())
     }
 
-    fun tryBuildStructure(gameMap: GameMap, type: UnitType) =
+    fun tryBuildStructure(gameMap: GameMap, type: UnitType) {
         when (type) {
             Units.ZERG_EXTRACTOR -> {
                 bases
@@ -224,12 +210,11 @@ open class ZergBot(
                 baseBuildings
                     .ready
                     .filter {
-                        canCast(it, Abilities.MORPH_LAIR, false)
+                        it.canCast(Abilities.MORPH_LAIR, false)
                     }
                     .closestTo(gameMap.ownStart)
                     ?.also {
-                        actions()
-                            .unitCommand(it, Abilities.MORPH_LAIR, false)
+                        it.use(Abilities.MORPH_LAIR)
                     }
             }
             else -> {
@@ -247,6 +232,7 @@ open class ZergBot(
                     }
             }
         }
+    }
 
     fun tryResearchUpgrade(upgrade: Upgrade) {
         val upgradeData = upgrades[upgrade] ?: return
@@ -254,38 +240,27 @@ open class ZergBot(
             .ofType(upgradeData.unitType)
             .idle
             .filter {
-                canCast(it, upgradeData.ability)
+                it.canCast(upgradeData.ability)
             }
             .randomOrNull()
             ?: return
-        actions()
-            .unitCommand(
-                building,
-                upgradeData.ability,
-                false
-            )
+        building.use(upgradeData.ability)
     }
 
     fun canAfford(unitType: UnitType) = canAfford(cost(unitType))
 
-    private fun tryBuildStructure(type: UnitType, target: Unit) {
+    private fun tryBuildStructure(type: UnitType, target: BotUnit) {
         if (!canAfford(type)) {
             return
         }
         val ability = trainingAbility(type) ?: return
         val builder = workers
             .filter {
-                canCast(it, ability)
+                it.canCast(ability)
             }
             .randomOrNull()
             ?: return
-        actions()
-            .unitCommand(
-                builder,
-                ability,
-                target,
-                false
-            )
+        builder.use(ability, target)
     }
 
     private fun canAfford(cost: Cost?): Boolean {

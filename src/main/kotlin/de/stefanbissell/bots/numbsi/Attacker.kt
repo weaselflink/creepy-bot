@@ -13,7 +13,6 @@ class Attacker(
         val threats = threats(zergBot)
         val attackers = zergBot
             .ownCombatUnits
-            .toBotUnits(zergBot)
         if (threats.isNotEmpty()) {
             attackers
                 .forEach {
@@ -40,19 +39,17 @@ class Attacker(
     }
 
     private fun List<BotUnit>.orderAttack(zergBot: ZergBot) {
-        val enemies = zergBot.enemyUnits
-            .toBotUnits(zergBot)
         if (zergBot.observation().getVisibility(gameMap.enemyStart) == Visibility.HIDDEN) {
             idle.forEach {
                 it.attack(gameMap.enemyStart)
             }
             return
         }
-        if (enemies.isNotEmpty()) {
+        if (zergBot.enemyUnits.isNotEmpty()) {
             filter {
                 it.wrapped.orders.firstOrNull()?.targetedWorldSpacePosition?.isPresent ?: true
             }.forEach {
-                it.attackBest(enemies)
+                it.attackBest(zergBot.enemyUnits)
             }
             return
         }
@@ -88,22 +85,15 @@ class Attacker(
 
     private fun threats(zergBot: ZergBot) =
         zergBot.enemyUnits
-            .mapNotNull { unit ->
-                zergBot.observation().getUnitTypeData(false)[unit.type]
-                    ?.let { unit to it }
+            .filter {
+                it.weapons.isNotEmpty()
             }
-            .mapNotNull { (unit, data) ->
-                if (data.weapons.isNotEmpty()) unit else null
-            }
-            .filter { unit ->
+            .filter {
                 val distance = zergBot
                     .baseBuildings
-                    .closestDistanceTo(unit)
+                    .closestDistanceTo(it)
                     ?: 1000.0
                 distance < 15
-            }
-            .map {
-                it.toBotUnit(zergBot)
             }
 
     private fun BotUnit.attackBest(targets: List<BotUnit>) {

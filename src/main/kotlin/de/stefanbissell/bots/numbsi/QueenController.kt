@@ -59,12 +59,11 @@ class QueenController : BotComponent() {
                 base to queen
             }
             .firstOrNull { (base, queen) ->
-                base.buffs.none { it == Buffs.QUEEN_SPAWN_LARVA_TIMER } &&
-                        zergBot.canCast(queen, Abilities.EFFECT_INJECT_LARVA)
+                base.wrapped.buffs.none { it == Buffs.QUEEN_SPAWN_LARVA_TIMER } &&
+                        queen.canCast(Abilities.EFFECT_INJECT_LARVA)
             }
             ?.also { (base, queen) ->
-                zergBot.actions()
-                    .unitCommand(queen, Abilities.EFFECT_INJECT_LARVA, base, false)
+                queen.use(Abilities.EFFECT_INJECT_LARVA, base)
             }
     }
 }

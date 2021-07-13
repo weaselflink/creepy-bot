@@ -72,17 +72,24 @@ open class CommonBot(
     private val neutralUnits by lazy {
         observation()
             .getUnits(Alliance.NEUTRAL)
-            .asUnits()
+            .toBotUnits(this)
     }
 
     private val allUnits by lazy {
         observation()
             .units
-            .asUnits()
+            .toBotUnits(this)
+    }
+
+    val ownUnits by lazy {
+        observation()
+            .getUnits(Alliance.SELF)
+            .toBotUnits(this)
     }
 
     val workers by lazy {
-        ownUnits.ofTypes(workerTypes)
+        ownUnits
+            .ofTypes(workerTypes)
     }
 
     val resources by lazy {
@@ -109,16 +116,10 @@ open class CommonBot(
             }
     }
 
-    val ownUnits by lazy {
-        observation()
-            .getUnits(Alliance.SELF)
-            .asUnits()
-    }
-
     val enemyUnits by lazy {
         observation()
             .getUnits(Alliance.ENEMY)
-            .asUnits()
+            .toBotUnits(this)
     }
 
     val ownWorkingVespeneBuildings by lazy {
@@ -126,7 +127,7 @@ open class CommonBot(
             .ofTypes(vespeneBuildingTypes)
             .ready
             .filter {
-                it.vespeneContents.orElse(0) > 0
+                it.vespeneContents > 0
             }
     }
 
@@ -149,20 +150,20 @@ open class CommonBot(
             .map { it.ability }
             .contains(ability)
 
-    fun isHarvestingMinerals(unit: Unit) =
+    fun isHarvestingMinerals(unit: BotUnit) =
         isHarvesting(unit, mineralFieldTypes, mineralBuffs)
 
-    fun isHarvestingVespene(unit: Unit) =
+    fun isHarvestingVespene(unit: BotUnit) =
         isHarvesting(unit, vespeneBuildingTypes, vespeneBuffs)
 
-    private fun isHarvesting(unit: Unit, targets: List<UnitType>, buffs: List<Buffs>): Boolean {
-        val gatherOrder = unit.orderOfType(Abilities.HARVEST_GATHER)
+    private fun isHarvesting(unit: BotUnit, targets: List<UnitType>, buffs: List<Buffs>): Boolean {
+        val gatherOrder = unit.wrapped.orderOfType(Abilities.HARVEST_GATHER)
         if (gatherOrder != null) {
             return gatherOrder.targetUnit()?.type in targets
         }
-        val returnOrder = unit.orderOfType(Abilities.HARVEST_RETURN)
+        val returnOrder = unit.wrapped.orderOfType(Abilities.HARVEST_RETURN)
         if (returnOrder != null) {
-            return unit.buffs.intersect(buffs).isNotEmpty()
+            return unit.wrapped.buffs.intersect(buffs).isNotEmpty()
         }
         return false
     }
@@ -182,24 +183,4 @@ open class CommonBot(
                     }
                     ?.unit()
             }
-
-    private fun Iterable<UnitInPool>.asUnits() = map { it.unit() }
 }
-
-fun List<Unit>.ofType(type: UnitType) =
-    filter { it.type == type }
-
-fun List<Unit>.ofTypes(types: List<UnitType>) =
-    filter { it.type in types }
-
-val List<Unit>.idle
-    get() = filter { it.orders.isEmpty() }
-
-val List<Unit>.ready
-    get() = filter { it.isReady }
-
-val List<Unit>.inProgress
-    get() = filter { !it.isReady }
-
-val Unit.isReady
-    get() = buildProgress == 1f
