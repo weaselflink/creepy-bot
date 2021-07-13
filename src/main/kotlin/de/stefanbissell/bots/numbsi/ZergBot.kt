@@ -21,10 +21,6 @@ open class ZergBot(
         Units.ZERG_LAIR
     )
 
-    private val workerTypes = listOf(
-        Units.ZERG_DRONE
-    )
-
     private val combatTypes = listOf(
         Units.ZERG_ZERGLING,
         Units.ZERG_ROACH,
@@ -77,10 +73,6 @@ open class ZergBot(
     ).associateBy { it.upgrade }
 
     val bases by lazy { Bases(this) }
-
-    val workers by lazy {
-        ownUnits.ofTypes(workerTypes)
-    }
 
     val ownCombatUnits by lazy {
         ownUnits.ofTypes(combatTypes)

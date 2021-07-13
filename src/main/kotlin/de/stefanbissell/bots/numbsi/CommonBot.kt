@@ -40,6 +40,13 @@ open class CommonBot(
         Units.NEUTRAL_BATTLE_STATION_MINERAL_FIELD, Units.NEUTRAL_BATTLE_STATION_MINERAL_FIELD750
     )
 
+    private val workerTypes = listOf(
+        Units.ZERG_DRONE,
+        Units.ZERG_DRONE_BURROWED,
+        Units.PROTOSS_PROBE,
+        Units.TERRAN_SCV
+    )
+
     private val vespeneBuildingTypes = listOf(
         Units.ZERG_EXTRACTOR, Units.ZERG_EXTRACTOR_RICH,
         Units.TERRAN_REFINERY, Units.TERRAN_REFINERY_RICH,
@@ -72,6 +79,10 @@ open class CommonBot(
         observation()
             .units
             .asUnits()
+    }
+
+    val workers by lazy {
+        ownUnits.ofTypes(workerTypes)
     }
 
     val resources by lazy {
