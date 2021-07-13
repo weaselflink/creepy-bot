@@ -28,13 +28,13 @@ open class ZergBot(
         Units.ZERG_MUTALISK
     )
 
-    private val buildingAbilities = mapOf(
-        Units.ZERG_HATCHERY to Abilities.BUILD_HATCHERY,
-        Units.ZERG_SPAWNING_POOL to Abilities.BUILD_SPAWNING_POOL,
-        Units.ZERG_ROACH_WARREN to Abilities.BUILD_ROACH_WARREN,
-        Units.ZERG_SPIRE to Abilities.BUILD_SPIRE,
-        Units.ZERG_EXTRACTOR to Abilities.BUILD_EXTRACTOR,
-        Units.ZERG_EVOLUTION_CHAMBER to Abilities.BUILD_EVOLUTION_CHAMBER
+    private val buildingAbilities = listOf(
+        Abilities.BUILD_HATCHERY,
+        Abilities.BUILD_SPAWNING_POOL,
+        Abilities.BUILD_ROACH_WARREN,
+        Abilities.BUILD_SPIRE,
+        Abilities.BUILD_EXTRACTOR,
+        Abilities.BUILD_EVOLUTION_CHAMBER
     )
 
     val upgrades = listOf(
@@ -99,7 +99,7 @@ open class ZergBot(
         return unit
             .orders
             .map { it.ability }
-            .any { it in buildingAbilities.values }
+            .any { it in buildingAbilities }
     }
 
     fun pendingCount(type: UnitType): Int {
