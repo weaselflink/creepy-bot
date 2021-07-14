@@ -19,7 +19,7 @@ class QueenController : BotComponent() {
         val unassignedQueens = zergBot
             .queens
             .filter {
-                it.tag !in assignedQueens.values
+                it.isAssigned
             }
         val basesNeedingQueen = zergBot
             .baseBuildings
@@ -78,9 +78,12 @@ class QueenController : BotComponent() {
                 base to queen
             }
         queens
-            .filter { it.tag !in assignedQueens.values }
+            .filter { !it.isAssigned }
             .forEach {
                 debugText(zergBot, it, "free")
             }
     }
+
+    private val BotUnit.isAssigned
+        get() = tag in assignedQueens.values
 }
