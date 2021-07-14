@@ -79,10 +79,7 @@ open class ZergBot(
     }
 
     val baseBuildings by lazy {
-        ownUnits
-            .filter {
-                it.type in baseTypes
-            }
+        ownUnits.ofTypes(baseTypes)
     }
 
     val queens by lazy {
