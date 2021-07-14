@@ -50,7 +50,7 @@ class Strategy(
     }
 
     private fun buildQueens(zergBot: ZergBot) {
-        if (zergBot.baseBuildings.ready.count() > zergBot.totalCount(Units.ZERG_QUEEN)) {
+        if (zergBot.baseBuildings.ready.count() >= zergBot.totalCount(Units.ZERG_QUEEN)) {
             zergBot.trainUnit(Units.ZERG_QUEEN)
         }
     }

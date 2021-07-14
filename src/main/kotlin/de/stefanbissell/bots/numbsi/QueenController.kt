@@ -11,6 +11,7 @@ class QueenController : BotComponent() {
     override fun onStep(zergBot: ZergBot) {
         assignQueens(zergBot)
         tryInjectLarva(zergBot)
+        debugQueens(zergBot)
     }
 
     private fun assignQueens(zergBot: ZergBot) {
@@ -48,6 +49,24 @@ class QueenController : BotComponent() {
     private fun tryInjectLarva(zergBot: ZergBot) {
         val bases = zergBot.baseBuildings.ready
         val queens = zergBot.queens
+        assignedQueens
+            .map { (baseTag, queenTag) ->
+                val base = bases.first { it.tag == baseTag }
+                val queen = queens.first { it.tag == queenTag }
+                base to queen
+            }
+            .firstOrNull { (base, queen) ->
+                base.wrapped.buffs.none { it == Buffs.QUEEN_SPAWN_LARVA_TIMER } &&
+                        queen.canCast(Abilities.EFFECT_INJECT_LARVA)
+            }
+            ?.also { (base, queen) ->
+                queen.use(Abilities.EFFECT_INJECT_LARVA, base)
+            }
+    }
+
+    private fun debugQueens(zergBot: ZergBot) {
+        val bases = zergBot.baseBuildings.ready
+        val queens = zergBot.queens
         var index = 1
         assignedQueens
             .map { (baseTag, queenTag) ->
@@ -58,12 +77,10 @@ class QueenController : BotComponent() {
                 index++
                 base to queen
             }
-            .firstOrNull { (base, queen) ->
-                base.wrapped.buffs.none { it == Buffs.QUEEN_SPAWN_LARVA_TIMER } &&
-                        queen.canCast(Abilities.EFFECT_INJECT_LARVA)
-            }
-            ?.also { (base, queen) ->
-                queen.use(Abilities.EFFECT_INJECT_LARVA, base)
+        queens
+            .filter { it.tag !in assignedQueens.values }
+            .forEach {
+                debugText(zergBot, it, "free")
             }
     }
 }
