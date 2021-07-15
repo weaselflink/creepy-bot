@@ -9,6 +9,7 @@ class NumbsiBot(
 ) : S2Agent() {
 
     private val di = DI {
+        bind { singleton { VictoryResolver() } }
         bind { singleton { GameMap() } }
         bind { singleton { QueenController() } }
         bind { singleton { UpgradeTacker() } }
@@ -21,7 +22,6 @@ class NumbsiBot(
     private val components by di.allInstances<BotComponent>()
 
     override fun onGameStart() {
-        super.onGameStart()
         val zergBot = ZergBot(this)
         components
             .sortedBy { it.priority }
@@ -30,8 +30,16 @@ class NumbsiBot(
             }
     }
 
+    override fun onGameEnd() {
+        val zergBot = ZergBot(this)
+        components
+            .sortedBy { it.priority }
+            .forEach {
+                it.onGameEnd(zergBot)
+            }
+    }
+
     override fun onStep() {
-        super.onStep()
         val zergBot = ZergBot(this)
         components
             .sortedBy { it.priority }
@@ -45,7 +53,6 @@ class NumbsiBot(
     }
 
     override fun onUpgradeCompleted(upgrade: Upgrade) {
-        super.onUpgradeCompleted(upgrade)
         val zergBot = ZergBot(this)
         components
             .sortedBy { it.priority }
@@ -60,6 +67,8 @@ abstract class BotComponent(
 ) {
 
     open fun onGameStart(zergBot: ZergBot) {}
+
+    open fun onGameEnd(zergBot: ZergBot) {}
 
     open fun onStep(zergBot: ZergBot) {}
 

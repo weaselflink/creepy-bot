@@ -22,7 +22,7 @@ class BuildOrder(
         BuildStructure(Units.ZERG_EXTRACTOR),
         Drone(),
         Overlord(),
-        TrainUnit(Units.ZERG_QUEEN, 1),
+        Queen(),
         Drone(),
         Drone(),
         Drone(),
@@ -42,6 +42,7 @@ class BuildOrder(
 
     override fun onStep(zergBot: ZergBot) {
         if (!finished) {
+            removeFinished(zergBot)
             order
                 .firstOrNull {
                     !it.executeNotDone(zergBot, this)
@@ -49,7 +50,7 @@ class BuildOrder(
         }
     }
 
-    fun pendingLarva(zergBot: ZergBot, unitType: UnitType): BotUnit? {
+    fun newPending(zergBot: ZergBot, unitType: UnitType): BotUnit? {
         val ability = zergBot.trainingAbility(unitType)
         return zergBot
             .ownUnits
@@ -59,6 +60,14 @@ class BuildOrder(
             .firstOrNull { larva ->
                 larva.orders
                     .any { it.ability == ability }
+            }
+    }
+
+    private fun removeFinished(zergBot: ZergBot) {
+        knownPending
+            .removeIf {
+                val unit = zergBot.unit(it)
+                unit == null || unit.isIdle
             }
     }
 }
@@ -77,47 +86,25 @@ private sealed class BuildOrderStep {
     abstract fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean
 }
 
-private class Drone : BuildOrderStep() {
+private open class BuildUnit(val unitType: UnitType) : BuildOrderStep() {
 
     override fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean {
-        val pending = buildOrder.pendingLarva(zergBot, Units.ZERG_DRONE)
+        val pending = buildOrder.newPending(zergBot, unitType)
         if (pending != null) {
             buildOrder.knownPending += pending.tag
             done = true
             return true
         }
-        zergBot.trainUnit(Units.ZERG_DRONE)
+        zergBot.trainUnit(unitType)
         return false
     }
 }
 
-private class Overlord : BuildOrderStep() {
+private class Drone : BuildUnit(Units.ZERG_DRONE)
 
-    override fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean {
-        val pending = buildOrder.pendingLarva(zergBot, Units.ZERG_OVERLORD)
-        if (pending != null) {
-            buildOrder.knownPending += pending.tag
-            done = true
-            return true
-        }
-        zergBot.trainUnit(Units.ZERG_OVERLORD)
-        return false
-    }
-}
+private class Overlord : BuildUnit(Units.ZERG_OVERLORD)
 
-private data class TrainUnit(
-    val type: UnitType,
-    val needed: Int
-) : BuildOrderStep() {
-    override fun tryExecute(zergBot: ZergBot, buildOrder: BuildOrder): Boolean {
-        val count = zergBot.totalCount(type)
-        if (count < needed) {
-            zergBot.trainUnit(type)
-            return false
-        }
-        return true
-    }
-}
+private class Queen : BuildUnit(Units.ZERG_QUEEN)
 
 private data class BuildStructure(
     val type: UnitType,

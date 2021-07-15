@@ -4,6 +4,7 @@ import com.github.ocraft.s2client.bot.gateway.UnitInPool
 import com.github.ocraft.s2client.protocol.data.*
 import com.github.ocraft.s2client.protocol.spatial.Point
 import com.github.ocraft.s2client.protocol.spatial.Point2d
+import com.github.ocraft.s2client.protocol.unit.Alliance
 import com.github.ocraft.s2client.protocol.unit.Tag
 import com.github.ocraft.s2client.protocol.unit.UnitOrder
 import com.github.ocraft.s2client.protocol.unit.Unit as S2Unit
@@ -26,8 +27,20 @@ class BotUnit(
     val weapons: Set<Weapon>
         get() = unitTypeData.weapons
 
+    val alliance: Alliance
+        get() = wrapped.alliance
+
+    val isIdle by lazy {
+        orders.isEmpty()
+    }
+
     val isReady
         get() = wrapped.buildProgress == 1f
+
+    val isStructure by lazy {
+        unitTypeData.attributes
+            .contains(UnitAttribute.STRUCTURE)
+    }
 
     val type: UnitType
         get() = wrapped.type

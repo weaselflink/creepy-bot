@@ -5,6 +5,7 @@ import com.github.ocraft.s2client.bot.S2Agent
 import com.github.ocraft.s2client.bot.gateway.*
 import com.github.ocraft.s2client.protocol.data.*
 import com.github.ocraft.s2client.protocol.unit.Alliance
+import com.github.ocraft.s2client.protocol.unit.Tag
 import com.github.ocraft.s2client.protocol.unit.Unit
 import com.github.ocraft.s2client.protocol.unit.UnitOrder
 
@@ -81,10 +82,20 @@ open class CommonBot(
             .toBotUnits(this)
     }
 
+    private val allStructures by lazy {
+        allUnits
+            .filter { it.isStructure }
+    }
+
     val ownUnits by lazy {
         observation()
             .getUnits(Alliance.SELF)
             .toBotUnits(this)
+    }
+
+    val ownStructures by lazy {
+        allStructures
+            .filter { it.alliance == Alliance.SELF }
     }
 
     val workers by lazy {
@@ -132,6 +143,10 @@ open class CommonBot(
     }
 
     val gameTime = GameTime(observation().gameLoop)
+
+    fun unit(tag: Tag) =
+        allUnits
+            .firstOrNull { it.tag == tag }
 
     fun trainingAbility(unityType: UnitType) =
         observation()
