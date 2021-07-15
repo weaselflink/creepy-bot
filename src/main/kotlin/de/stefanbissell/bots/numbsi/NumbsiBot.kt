@@ -61,8 +61,6 @@ abstract class BotComponent(
 
     open fun onGameStart(zergBot: ZergBot) {}
 
-    open fun onGameEnd(zergBot: ZergBot) {}
-
     open fun onStep(zergBot: ZergBot) {}
 
     open fun onUpgradeCompleted(zergBot: ZergBot, upgrade: Upgrade) {}
