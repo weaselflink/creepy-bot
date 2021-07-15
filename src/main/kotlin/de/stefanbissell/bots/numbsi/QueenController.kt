@@ -19,7 +19,7 @@ class QueenController : BotComponent() {
         val unassignedQueens = zergBot
             .queens
             .filter {
-                it.isAssigned
+                !it.isAssigned
             }
         val basesNeedingQueen = zergBot
             .baseBuildings
