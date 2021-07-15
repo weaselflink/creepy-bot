@@ -2,6 +2,7 @@ package de.stefanbissell.bots.numbsi
 
 import com.github.ocraft.s2client.bot.gateway.UnitInPool
 import com.github.ocraft.s2client.protocol.data.*
+import com.github.ocraft.s2client.protocol.debug.Color
 import com.github.ocraft.s2client.protocol.spatial.Point
 import com.github.ocraft.s2client.protocol.spatial.Point2d
 import com.github.ocraft.s2client.protocol.unit.Alliance
@@ -105,6 +106,17 @@ class BotUnit(
                     .any { it.range >= distance }
             }
 
+    fun debugLine(target: BotUnit, color: Color = Color.WHITE) {
+        bot.debug()
+            .debugLineOut(position, target.position, color)
+    }
+
+    fun debugLine(point: Point2d, color: Color = Color.WHITE) {
+        val point3d = Point.of(point.x, point.y, bot.observation().terrainHeight(point) + 0.1f)
+        bot.debug()
+            .debugLineOut(position, point3d, color)
+    }
+
     private val isFlying by lazy {
         wrapped.flying.orElse(false)
     }
@@ -135,9 +147,6 @@ fun S2Unit.toBotUnit(bot: CommonBot) = BotUnit(bot, this)
 
 fun Iterable<UnitInPool>.toBotUnits(bot: CommonBot) =
     map { it.unit().toBotUnit(bot) }
-
-fun Iterable<S2Unit>.asBotUnits(bot: CommonBot) =
-    map { it.toBotUnit(bot) }
 
 fun List<BotUnit>.ofType(type: UnitType) =
     filter { it.type == type }

@@ -1,6 +1,7 @@
 package de.stefanbissell.bots.numbsi
 
 import com.github.ocraft.s2client.protocol.data.Units
+import com.github.ocraft.s2client.protocol.debug.Color
 import com.github.ocraft.s2client.protocol.observation.raw.Visibility
 
 class Attacker(
@@ -33,23 +34,23 @@ class Attacker(
                 .forEach {
                     if (it.position.distance(rallyPoint) > 5) {
                         it.move(rallyPoint)
+                        it.debugLine(rallyPoint, Color.YELLOW)
                     }
                 }
         }
     }
 
     private fun List<BotUnit>.orderAttack(zergBot: ZergBot) {
-        if (zergBot.observation().getVisibility(gameMap.enemyStart) == Visibility.HIDDEN) {
-            idle.forEach {
-                it.attack(gameMap.enemyStart)
+        if (zergBot.enemyUnits.isNotEmpty()) {
+            forEach {
+                it.attackBest(zergBot.enemyUnits)
             }
             return
         }
-        if (zergBot.enemyUnits.isNotEmpty()) {
-            filter {
-                it.wrapped.orders.firstOrNull()?.targetedWorldSpacePosition?.isPresent ?: true
-            }.forEach {
-                it.attackBest(zergBot.enemyUnits)
+        if (zergBot.observation().getVisibility(gameMap.enemyStart) == Visibility.HIDDEN) {
+            forEach {
+                it.move(gameMap.enemyStart)
+                it.debugLine(gameMap.enemyStart, Color.YELLOW)
             }
             return
         }
@@ -60,7 +61,9 @@ class Attacker(
         if (scoutingTargets.isNotEmpty()) {
             idle
                 .forEach {
-                    it.move(scoutingTargets.random().toPoint2d())
+                    val target = scoutingTargets.random().toPoint2d()
+                    it.move(target)
+                    it.debugLine(target, Color.YELLOW)
                 }
         }
     }
@@ -108,6 +111,7 @@ class Attacker(
             .closestTo(this)
             ?.also {
                 attack(it)
+                debugLine(it, Color.YELLOW)
             }
     }
 }
