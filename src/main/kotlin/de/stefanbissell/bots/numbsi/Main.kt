@@ -19,7 +19,6 @@ fun main(args: Array<String>) {
     val s2Coordinator = S2Coordinator
         .setup()
         .setRealtime(false)
-        .setTimeoutMS(30_000)
         .loadSettings(args)
         .setParticipants(
             S2Coordinator.createParticipant(Race.ZERG, NumbsiBot(true)),

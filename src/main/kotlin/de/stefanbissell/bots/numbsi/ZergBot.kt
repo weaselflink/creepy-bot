@@ -72,10 +72,13 @@ open class ZergBot(
         ownUnits.ofTypes(combatTypes)
     }
 
-    private val idleLarva by lazy {
+    val larva by lazy {
         ownUnits
             .ofType(Units.ZERG_LARVA)
-            .idle
+    }
+
+    private val idleLarva by lazy {
+        larva.idle
     }
 
     val baseBuildings by lazy {
