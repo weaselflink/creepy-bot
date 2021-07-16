@@ -62,11 +62,13 @@ class Strategy(
     }
 
     private fun trainTroops(zergBot: ZergBot) {
-        if (zergBot.canAfford(Units.ZERG_MUTALISK)) {
-            zergBot.trainUnit(Units.ZERG_MUTALISK)
-        }
-        if (zergBot.canAfford(Units.ZERG_ZERGLING, 4)) {
-            zergBot.trainUnit(Units.ZERG_ZERGLING)
+        if (hasReserves(zergBot)) {
+            if (zergBot.canAfford(Units.ZERG_MUTALISK)) {
+                zergBot.trainUnit(Units.ZERG_MUTALISK)
+            }
+            if (zergBot.canAfford(Units.ZERG_ZERGLING, 4)) {
+                zergBot.trainUnit(Units.ZERG_ZERGLING)
+            }
         }
     }
 
@@ -144,4 +146,8 @@ class Strategy(
             zergBot.tryResearchUpgrade(upgrade)
         }
     }
+
+    private fun hasReserves(zergBot: ZergBot) =
+        zergBot.gameTime.fullMinutes < 10 ||
+            (zergBot.minerals > 300 && zergBot.vespene > 200)
 }
