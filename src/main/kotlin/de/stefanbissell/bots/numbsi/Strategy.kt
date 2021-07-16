@@ -15,7 +15,11 @@ class Strategy(
     private val priorities = listOf(
         Units.ZERG_LAIR,
         Upgrades.ZERG_MELEE_WEAPONS_LEVEL1,
-        Units.ZERG_SPIRE
+        Units.ZERG_SPIRE,
+        Upgrades.ZERG_FLYER_ARMORS_LEVEL1,
+        Upgrades.ZERG_GROUND_ARMORS_LEVEL2,
+        Upgrades.ZERG_FLYER_WEAPONS_LEVEL1,
+        Upgrades.ZERG_MELEE_WEAPONS_LEVEL2
     )
 
     override fun onStep(zergBot: ZergBot) {
