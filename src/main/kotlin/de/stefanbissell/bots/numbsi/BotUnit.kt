@@ -55,8 +55,11 @@ class BotUnit(
     val vespeneContents: Int
         get() = wrapped.vespeneContents.orElse(0)
 
-    private fun distanceTo(target: BotUnit) =
-        position.toPoint2d().distance(target.position.toPoint2d())
+    fun distanceTo(target: BotUnit): Double =
+        distanceTo(target.position.toPoint2d())
+
+    fun distanceTo(point: Point2d): Double =
+        position.toPoint2d().distance(point)
 
     fun use(ability: Ability) {
         bot.actions()
@@ -173,9 +176,7 @@ val List<BotUnit>.inProgress
     get() = filter { !it.isReady }
 
 val List<BotUnit>.idle
-    get() = filter {
-        it.wrapped.orders.isEmpty()
-    }
+    get() = filter { it.isIdle }
 
 fun List<BotUnit>.closestTo(unit: BotUnit) =
     minByOrNull { it.position.distance(unit.position) }

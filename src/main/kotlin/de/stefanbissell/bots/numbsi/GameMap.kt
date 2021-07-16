@@ -3,6 +3,7 @@ package de.stefanbissell.bots.numbsi
 import com.github.ocraft.s2client.protocol.data.Units
 import com.github.ocraft.s2client.protocol.game.raw.StartRaw
 import com.github.ocraft.s2client.protocol.spatial.Point2d
+import com.github.ocraft.s2client.protocol.spatial.RectangleI
 import com.github.ocraft.s2client.protocol.unit.Alliance
 import java.lang.Float.max
 import java.lang.Float.min
@@ -16,6 +17,7 @@ class GameMap : BotComponent(0) {
 
     private val width by lazy { startRaw.mapSize.x }
     private val height by lazy { startRaw.mapSize.x }
+    val playable: RectangleI by lazy { startRaw.playableArea }
     val center: Point2d by lazy { Point2d.of(width / 2f, height / 2f) }
 
     override fun onGameStart(zergBot: ZergBot) {

@@ -68,7 +68,7 @@ class Attacker(
         val troops = ownCombatUnits
             .sumOf {
                 when (it.type) {
-                    Units.ZERG_MUTALISK -> 3
+                    Units.ZERG_MUTALISK -> 2
                     Units.ZERG_ROACH -> 2
                     Units.ZERG_HYDRALISK -> 2
                     else -> 1

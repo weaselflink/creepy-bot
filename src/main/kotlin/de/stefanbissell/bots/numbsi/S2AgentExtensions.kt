@@ -3,6 +3,7 @@ package de.stefanbissell.bots.numbsi
 import com.github.ocraft.s2client.protocol.debug.Color
 import com.github.ocraft.s2client.protocol.spatial.Point
 import com.github.ocraft.s2client.protocol.spatial.Point2d
+import kotlin.random.Random
 
 fun Point.towards(to: Point2d, distance: Float): Point2d {
     val from = this.toPoint2d()
@@ -16,6 +17,13 @@ fun Point.towards(to: Point2d, distance: Float): Point2d {
 
 fun Point.distance(point: Point2d) =
     toPoint2d().distance(point)
+
+fun Point2d.random(distance: Float): Point2d =
+    add(getRandomScalar() * distance, getRandomScalar() * distance)
+
+private fun getRandomScalar(): Float {
+    return Random.nextFloat() * 2 - 1
+}
 
 fun debugText(
     zergBot: ZergBot,

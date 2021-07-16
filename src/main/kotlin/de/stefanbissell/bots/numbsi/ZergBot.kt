@@ -1,14 +1,8 @@
 package de.stefanbissell.bots.numbsi
 
 import com.github.ocraft.s2client.bot.S2Agent
-import com.github.ocraft.s2client.protocol.data.Abilities
-import com.github.ocraft.s2client.protocol.data.Ability
-import com.github.ocraft.s2client.protocol.data.UnitType
-import com.github.ocraft.s2client.protocol.data.Units
-import com.github.ocraft.s2client.protocol.data.Upgrade
-import com.github.ocraft.s2client.protocol.data.Upgrades
+import com.github.ocraft.s2client.protocol.data.*
 import com.github.ocraft.s2client.protocol.spatial.Point2d
-import kotlin.random.Random
 
 open class ZergBot(
     agent: S2Agent
@@ -228,7 +222,7 @@ open class ZergBot(
                     .closestTo(gameMap.ownStart)
                     ?.position
                     ?.towards(gameMap.center, 6f)
-                    ?.add(Point2d.of(getRandomScalar(), getRandomScalar()).mul(4.0f))
+                    ?.random(4f)
                     ?.let {
                         gameMap.clampToMap(it)
                     }
@@ -286,10 +280,6 @@ open class ZergBot(
                     vespene = it.vespeneCost.orElse(0)
                 )
             }
-
-    private fun getRandomScalar(): Float {
-        return Random.nextFloat() * 2 - 1
-    }
 }
 
 data class Cost(

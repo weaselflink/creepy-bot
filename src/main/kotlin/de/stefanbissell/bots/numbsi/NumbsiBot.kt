@@ -15,6 +15,7 @@ class NumbsiBot(
         bind { singleton { UpgradeTacker() } }
         bind { singleton { FriendlyChat() } }
         bind { singleton { WorkerManager() } }
+        bind { singleton { OverlordController(instance()) } }
         bind { singleton { BuildOrder(instance(), instance()) } }
         bind { singleton { Strategy(instance(), instance(), instance()) } }
         bind { singleton { Attacker(instance()) } }
