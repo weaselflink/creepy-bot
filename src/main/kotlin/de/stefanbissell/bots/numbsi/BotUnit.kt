@@ -184,7 +184,10 @@ fun List<BotUnit>.closestTo(point: Point2d) =
     minByOrNull { it.position.distance(point) }
 
 fun List<BotUnit>.closerThan(unit: BotUnit, distance: Float) =
-    filter { it.position.toPoint2d().distance(unit.position.toPoint2d()) < distance }
+    closerThan(unit.position.toPoint2d(), distance)
+
+fun List<BotUnit>.closerThan(point: Point2d, distance: Float) =
+    filter { it.position.toPoint2d().distance(point) < distance }
 
 fun List<BotUnit>.closestDistanceTo(point: Point2d): Double? =
     minOfOrNull { it.position.distance(point) }
