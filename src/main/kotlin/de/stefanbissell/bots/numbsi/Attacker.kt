@@ -74,11 +74,10 @@ class Attacker(
                     else -> 1
                 } as Int
             }
-        enoughTroops = if (enoughTroops) {
-            troops >= 30 || troops >= (zergBot.gameTime.exactMinutes * 2)
-        } else {
-            troops >= 40 || troops >= (zergBot.gameTime.exactMinutes * 3)
-        }
+        val nearCap = zergBot.supplyCap >= 190 && zergBot.supplyLeft <= 4
+        enoughTroops = nearCap ||
+            (enoughTroops && troops >= (zergBot.gameTime.exactMinutes * 2)) ||
+            (!enoughTroops && troops >= (zergBot.gameTime.exactMinutes * 3))
     }
 
     private fun threats(zergBot: ZergBot) =
