@@ -23,7 +23,7 @@ class BuildOrder(
         Drone(),
         Overlord(),
         Queen(),
-        Drone(),
+        Zerglings(),
         Drone(),
         Drone(),
         ResearchUpgrade(upgradeTacker, Upgrades.ZERGLING_MOVEMENT_SPEED),
@@ -103,6 +103,8 @@ private open class BuildUnit(val unitType: UnitType) : BuildOrderStep() {
 private class Drone : BuildUnit(Units.ZERG_DRONE)
 
 private class Overlord : BuildUnit(Units.ZERG_OVERLORD)
+
+private class Zerglings : BuildUnit(Units.ZERG_ZERGLING)
 
 private class Queen : BuildUnit(Units.ZERG_QUEEN)
 

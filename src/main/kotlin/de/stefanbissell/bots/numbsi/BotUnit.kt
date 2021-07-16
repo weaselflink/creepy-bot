@@ -69,8 +69,10 @@ class BotUnit(
     }
 
     fun use(ability: Ability, target: BotUnit) {
-        bot.actions()
-            .unitCommand(wrapped, ability, target.wrapped, false)
+        if (!hasOrder(ability, target)) {
+            bot.actions()
+                .unitCommand(wrapped, ability, target.wrapped, false)
+        }
     }
 
     fun move(target: Point2d) {
@@ -132,6 +134,16 @@ class BotUnit(
             it.canAttackGround
         }
     }
+
+    private val targetTag: Tag? by lazy {
+        orders
+            .firstOrNull()
+            ?.targetedUnitTag
+            ?.orElse(null)
+    }
+
+    private fun hasOrder(ability: Ability, target: BotUnit) =
+        orders.any { it.ability == ability && targetTag == target.tag }
 
     private fun Weapon.canAttack(target: BotUnit) =
         (!target.isFlying && canAttackGround) || (target.isFlying && canAttackAir)
