@@ -35,7 +35,9 @@ class Strategy(
             return
         }
         if (zergBot.bases.any { it.workersNeeded > 0 }) {
-            zergBot.trainUnit(Units.ZERG_DRONE)
+            if (zergBot.canAfford(Units.ZERG_DRONE, 2)) {
+                zergBot.trainUnit(Units.ZERG_DRONE)
+            }
         }
     }
 
@@ -59,7 +61,7 @@ class Strategy(
         if (zergBot.canAfford(Units.ZERG_MUTALISK)) {
             zergBot.trainUnit(Units.ZERG_MUTALISK)
         }
-        if (zergBot.canAfford(Units.ZERG_ZERGLING)) {
+        if (zergBot.canAfford(Units.ZERG_ZERGLING, 2)) {
             zergBot.trainUnit(Units.ZERG_ZERGLING)
         }
     }

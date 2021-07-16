@@ -252,7 +252,8 @@ open class ZergBot(
         building.use(upgradeData.ability)
     }
 
-    fun canAfford(unitType: UnitType) = canAfford(cost(unitType))
+    fun canAfford(unitType: UnitType, count: Int = 1) =
+        canAfford(cost(unitType)?.let { it * count })
 
     private fun tryBuildStructure(type: UnitType, target: BotUnit) {
         if (!canAfford(type)) {
@@ -276,7 +277,8 @@ open class ZergBot(
     }
 
     private fun cost(unitType: UnitType) =
-        observation().getUnitTypeData(false)[unitType]
+        observation()
+            .getUnitTypeData(false)[unitType]
             ?.let {
                 Cost(
                     supply = it.foodRequired.orElse(0f),
@@ -294,7 +296,11 @@ data class Cost(
     val supply: Float,
     val minerals: Int,
     val vespene: Int
-)
+) {
+
+    operator fun times(factor: Int): Cost =
+        Cost(supply * factor, minerals * factor, vespene * factor)
+}
 
 data class UpgradeData(
     val upgrade: Upgrade,
