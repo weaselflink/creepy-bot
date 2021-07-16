@@ -4,14 +4,14 @@ import com.github.ocraft.s2client.protocol.debug.Color
 import com.github.ocraft.s2client.protocol.spatial.Point
 import com.github.ocraft.s2client.protocol.spatial.Point2d
 
-fun Point.towards(to: Point, distance: Float): Point {
-    val from = this
+fun Point.towards(to: Point2d, distance: Float): Point2d {
+    val from = this.toPoint2d()
     val dir = to.sub(from)
     val dist = to.distance(from).toFloat()
     if (dist < 0.1) {
         return from
     }
-    return this.add(dir.div(dist).mul(distance))
+    return from.add(dir.div(dist).mul(distance))
 }
 
 fun Point.distance(point: Point2d) =

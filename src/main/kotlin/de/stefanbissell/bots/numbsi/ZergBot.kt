@@ -1,8 +1,13 @@
 package de.stefanbissell.bots.numbsi
 
 import com.github.ocraft.s2client.bot.S2Agent
-import com.github.ocraft.s2client.protocol.data.*
-import com.github.ocraft.s2client.protocol.spatial.Point
+import com.github.ocraft.s2client.protocol.data.Abilities
+import com.github.ocraft.s2client.protocol.data.Ability
+import com.github.ocraft.s2client.protocol.data.UnitType
+import com.github.ocraft.s2client.protocol.data.Units
+import com.github.ocraft.s2client.protocol.data.Upgrade
+import com.github.ocraft.s2client.protocol.data.Upgrades
+import com.github.ocraft.s2client.protocol.spatial.Point2d
 import kotlin.random.Random
 
 open class ZergBot(
@@ -72,7 +77,7 @@ open class ZergBot(
         ownUnits.ofTypes(combatTypes)
     }
 
-    val larva by lazy {
+    private val larva by lazy {
         ownUnits
             .ofType(Units.ZERG_LARVA)
     }
@@ -166,7 +171,7 @@ open class ZergBot(
             }
     }
 
-    fun tryBuildStructure(type: UnitType, position: Point) {
+    fun tryBuildStructure(type: UnitType, position: Point2d) {
         if (!canAfford(type)) {
             return
         }
@@ -177,7 +182,7 @@ open class ZergBot(
             }
             .randomOrNull()
             ?: return
-        builder.use(ability, position.toPoint2d())
+        builder.use(ability, position)
     }
 
     fun tryBuildStructure(gameMap: GameMap, type: UnitType) {
@@ -200,7 +205,7 @@ open class ZergBot(
                         baseBuildings.none { it.position.distance(expansion) < 4 }
                     }
                     .minByOrNull {
-                        it.toPoint2d().distance(gameMap.ownStart)
+                        it.distance(gameMap.ownStart)
                     }
                     ?.also {
                         tryBuildStructure(type, it)
@@ -223,7 +228,7 @@ open class ZergBot(
                     .closestTo(gameMap.ownStart)
                     ?.position
                     ?.towards(gameMap.center, 6f)
-                    ?.add(Point.of(getRandomScalar(), getRandomScalar()).mul(4.0f))
+                    ?.add(Point2d.of(getRandomScalar(), getRandomScalar()).mul(4.0f))
                     ?.let {
                         gameMap.clampToMap(it)
                     }

@@ -104,7 +104,7 @@ class Strategy(
                 zergBot.baseBuildings.none { it.position.distance(expansion) < 4 }
             }
             .minByOrNull {
-                it.toPoint2d().distance(gameMap.ownStart)
+                it.distance(gameMap.ownStart)
             }
             ?.also {
                 zergBot.tryBuildStructure(Units.ZERG_HATCHERY, it)

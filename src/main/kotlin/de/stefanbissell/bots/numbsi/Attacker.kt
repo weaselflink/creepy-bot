@@ -51,12 +51,12 @@ class Attacker(
         }
         val scoutingTargets = gameMap.expansions
             .filter {
-                zergBot.observation().getVisibility(it.toPoint2d()) != Visibility.VISIBLE
+                zergBot.observation().getVisibility(it) != Visibility.VISIBLE
             }
         if (scoutingTargets.isNotEmpty()) {
             idle
                 .forEach {
-                    val target = scoutingTargets.random().toPoint2d()
+                    val target = scoutingTargets.random()
                     it.move(target)
                     it.debugLine(target, Color.YELLOW)
                 }
