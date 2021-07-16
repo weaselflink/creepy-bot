@@ -15,10 +15,7 @@ class Attacker(
         val attackers = zergBot
             .ownCombatUnits
         if (threats.isNotEmpty()) {
-            attackers
-                .forEach {
-                    it.attackBest(threats)
-                }
+            attackers.attackBest(threats)
             return
         }
         updateEnoughTroops(zergBot, attackers)
@@ -42,9 +39,7 @@ class Attacker(
 
     private fun List<BotUnit>.orderAttack(zergBot: ZergBot) {
         if (zergBot.enemyUnits.isNotEmpty()) {
-            forEach {
-                it.attackBest(zergBot.enemyUnits)
-            }
+            attackBest(zergBot.enemyUnits)
             return
         }
         if (zergBot.observation().getVisibility(gameMap.enemyStart) == Visibility.HIDDEN) {
@@ -98,6 +93,12 @@ class Attacker(
                     ?: 1000.0
                 distance < 15
             }
+
+    private fun List<BotUnit>.attackBest(targets: List<BotUnit>) {
+        forEach {
+            it.attackBest(targets)
+        }
+    }
 
     private fun BotUnit.attackBest(targets: List<BotUnit>) {
         targets
