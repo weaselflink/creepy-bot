@@ -61,7 +61,7 @@ class Strategy(
         if (zergBot.canAfford(Units.ZERG_MUTALISK)) {
             zergBot.trainUnit(Units.ZERG_MUTALISK)
         }
-        if (zergBot.canAfford(Units.ZERG_ZERGLING, 2)) {
+        if (zergBot.canAfford(Units.ZERG_ZERGLING, 4)) {
             zergBot.trainUnit(Units.ZERG_ZERGLING)
         }
     }
