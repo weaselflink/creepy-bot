@@ -62,6 +62,57 @@ open class ZergBot(
             Abilities.RESEARCH_ZERG_MELEE_WEAPONS,
             Units.ZERG_EVOLUTION_CHAMBER,
             Upgrades.ZERG_MELEE_WEAPONS_LEVEL1
+        ),
+        UpgradeData(
+            Upgrades.ZERG_GROUND_ARMORS_LEVEL3,
+            Abilities.RESEARCH_ZERG_GROUND_ARMOR,
+            Units.ZERG_EVOLUTION_CHAMBER,
+            Upgrades.ZERG_GROUND_ARMORS_LEVEL2
+        ),
+        UpgradeData(
+            Upgrades.ZERG_MELEE_WEAPONS_LEVEL3,
+            Abilities.RESEARCH_ZERG_MELEE_WEAPONS,
+            Units.ZERG_EVOLUTION_CHAMBER,
+            Upgrades.ZERG_MELEE_WEAPONS_LEVEL2
+        ),
+        UpgradeData(
+            Upgrades.ZERG_FLYER_ARMORS_LEVEL1,
+            Abilities.RESEARCH_ZERG_FLYER_ARMOR,
+            Units.ZERG_SPIRE
+        ),
+        UpgradeData(
+            Upgrades.ZERG_FLYER_WEAPONS_LEVEL1,
+            Abilities.RESEARCH_ZERG_FLYER_ATTACK,
+            Units.ZERG_SPIRE
+        ),
+        UpgradeData(
+            Upgrades.ZERG_FLYER_ARMORS_LEVEL2,
+            Abilities.RESEARCH_ZERG_FLYER_ARMOR,
+            Units.ZERG_SPIRE,
+            Upgrades.ZERG_FLYER_ARMORS_LEVEL1
+        ),
+        UpgradeData(
+            Upgrades.ZERG_FLYER_WEAPONS_LEVEL2,
+            Abilities.RESEARCH_ZERG_FLYER_ATTACK,
+            Units.ZERG_SPIRE,
+            Upgrades.ZERG_FLYER_WEAPONS_LEVEL1
+        ),
+        UpgradeData(
+            Upgrades.ZERG_FLYER_ARMORS_LEVEL3,
+            Abilities.RESEARCH_ZERG_FLYER_ARMOR,
+            Units.ZERG_SPIRE,
+            Upgrades.ZERG_FLYER_ARMORS_LEVEL2
+        ),
+        UpgradeData(
+            Upgrades.ZERG_FLYER_WEAPONS_LEVEL3,
+            Abilities.RESEARCH_ZERG_FLYER_ATTACK,
+            Units.ZERG_SPIRE,
+            Upgrades.ZERG_FLYER_WEAPONS_LEVEL2
+        ),
+        UpgradeData(
+            Upgrades.ZERGLING_ATTACK_SPEED,
+            Abilities.RESEARCH_ZERGLING_ADRENAL_GLANDS,
+            Units.ZERG_SPAWNING_POOL
         )
     ).associateBy { it.upgrade }
 
@@ -218,6 +269,17 @@ open class ZergBot(
                     .closestTo(gameMap.ownStart)
                     ?.also {
                         it.use(Abilities.MORPH_LAIR)
+                    }
+            }
+            Units.ZERG_HIVE -> {
+                baseBuildings
+                    .ready
+                    .filter {
+                        it.canCast(Abilities.MORPH_HIVE, false)
+                    }
+                    .closestTo(gameMap.ownStart)
+                    ?.also {
+                        it.use(Abilities.MORPH_HIVE)
                     }
             }
             else -> {

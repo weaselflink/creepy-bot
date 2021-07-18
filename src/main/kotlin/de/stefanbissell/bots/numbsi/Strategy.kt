@@ -19,7 +19,12 @@ class Strategy(
         Upgrades.ZERG_FLYER_ARMORS_LEVEL1,
         Upgrades.ZERG_GROUND_ARMORS_LEVEL2,
         Upgrades.ZERG_FLYER_WEAPONS_LEVEL1,
-        Upgrades.ZERG_MELEE_WEAPONS_LEVEL2
+        Upgrades.ZERG_MELEE_WEAPONS_LEVEL2,
+        Units.ZERG_INFESTATION_PIT,
+        Units.ZERG_HIVE,
+        Upgrades.ZERGLING_ATTACK_SPEED,
+        Upgrades.ZERG_GROUND_ARMORS_LEVEL3,
+        Upgrades.ZERG_MELEE_WEAPONS_LEVEL3
     )
 
     override fun onStep(zergBot: ZergBot) {
@@ -67,6 +72,7 @@ class Strategy(
                 zergBot.trainUnit(Units.ZERG_MUTALISK)
             }
             if (zergBot.canAfford(Units.ZERG_ZERGLING, 4)) {
+                zergBot.trainUnit(Units.ZERG_ZERGLING)
                 zergBot.trainUnit(Units.ZERG_ZERGLING)
             }
         }
@@ -139,5 +145,6 @@ class Strategy(
 
     private fun hasReserves(zergBot: ZergBot) =
         zergBot.gameTime.fullMinutes < 10 ||
-            (zergBot.minerals > 300 && zergBot.vespene > 200)
+            (zergBot.gameTime.fullMinutes < 15 && zergBot.minerals > 300 && zergBot.vespene > 200) ||
+                (zergBot.minerals > 400 && zergBot.vespene > 300)
 }
