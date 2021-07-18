@@ -28,9 +28,9 @@ class Strategy(
             droneUp(zergBot)
             buildExtractors(zergBot)
             buildQueens(zergBot)
+            ensurePriorities(zergBot)
             trainTroops(zergBot)
             keepSupplied(zergBot)
-            ensurePriorities(zergBot)
         }
     }
 
@@ -106,17 +106,7 @@ class Strategy(
                 zergBot.baseBuildings.inProgress.count() > 0
 
     private fun expand(zergBot: ZergBot) {
-        gameMap
-            .expansions
-            .filter { expansion ->
-                zergBot.baseBuildings.none { it.position.distance(expansion) < 4 }
-            }
-            .minByOrNull {
-                it.distance(gameMap.ownStart)
-            }
-            ?.also {
-                zergBot.tryBuildStructure(Units.ZERG_HATCHERY, it)
-            }
+        zergBot.tryBuildStructure(gameMap, Units.ZERG_HATCHERY)
     }
 
     private fun ensurePriorities(zergBot: ZergBot) {

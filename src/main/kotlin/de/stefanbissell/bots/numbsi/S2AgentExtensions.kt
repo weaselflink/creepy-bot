@@ -5,6 +5,9 @@ import com.github.ocraft.s2client.protocol.spatial.Point
 import com.github.ocraft.s2client.protocol.spatial.Point2d
 import kotlin.random.Random
 
+fun List<Point2d>.closestTo(point: Point2d) =
+    minByOrNull { it.distance(point) }
+
 fun Point.towards(to: Point2d, distance: Float): Point2d {
     val from = this.toPoint2d()
     val dir = to.sub(from)

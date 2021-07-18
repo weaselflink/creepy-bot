@@ -165,7 +165,7 @@ open class ZergBot(
             }
     }
 
-    fun tryBuildStructure(type: UnitType, position: Point2d) {
+    private fun tryBuildStructure(type: UnitType, position: Point2d) {
         if (!canAfford(type)) {
             return
         }
@@ -193,16 +193,20 @@ open class ZergBot(
                     }
             }
             Units.ZERG_HATCHERY -> {
-                gameMap
+                val firstBase = gameMap
                     .expansions
-                    .filter { expansion ->
-                        baseBuildings.none { it.position.distance(expansion) < 4 }
+                    .closestTo(gameMap.ownStart)
+                gameMap
+                    .expansionDistances[firstBase]!!
+                    .filter { (expansion, _) ->
+                        baseBuildings
+                            .none { it.position.distance(expansion) < 4 }
                     }
-                    .minByOrNull {
-                        it.distance(gameMap.ownStart)
+                    .minByOrNull { (_, distance) ->
+                        distance
                     }
-                    ?.also {
-                        tryBuildStructure(type, it)
+                    ?.also { (expansion, _) ->
+                        tryBuildStructure(Units.ZERG_HATCHERY, expansion)
                     }
             }
             Units.ZERG_LAIR -> {
