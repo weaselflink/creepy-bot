@@ -214,8 +214,11 @@ open class ZergBot(
     }
 
     fun tryResearchUpgrade(upgrade: Upgrade) {
+        if (!canAfford(upgrade)) {
+            return
+        }
         val ability = researchAbility(upgrade) ?: return
-        val building = ownUnits
+        val building = ownStructures
             .idle
             .filter {
                 it.canCast(ability)
@@ -227,6 +230,9 @@ open class ZergBot(
 
     fun canAfford(unitType: UnitType, count: Int = 1) =
         canAfford(cost(unitType)?.let { it * count })
+
+    private fun canAfford(upgrade: Upgrade) =
+        canAfford(cost(upgrade))
 
     private fun tryBuildStructure(type: UnitType, target: BotUnit) {
         if (!canAfford(type)) {
@@ -248,6 +254,17 @@ open class ZergBot(
                 cost.minerals <= observation().minerals &&
                 cost.vespene <= observation().vespene
     }
+
+    private fun cost(upgrade: Upgrade) =
+        observation()
+            .getUpgradeData(false)[upgrade]
+            ?.let {
+                Cost(
+                    supply = 0f,
+                    minerals = it.mineralCost.orElse(0),
+                    vespene = it.vespeneCost.orElse(0)
+                )
+            }
 
     private fun cost(unitType: UnitType) =
         observation()
