@@ -30,92 +30,6 @@ open class ZergBot(
         Abilities.BUILD_EVOLUTION_CHAMBER
     )
 
-    val upgrades = listOf(
-        UpgradeData(
-            Upgrades.ZERGLING_MOVEMENT_SPEED,
-            Abilities.RESEARCH_ZERGLING_METABOLIC_BOOST,
-            Units.ZERG_SPAWNING_POOL
-        ),
-        UpgradeData(
-            Upgrades.ZERGLING_ATTACK_SPEED,
-            Abilities.RESEARCH_ZERGLING_ADRENAL_GLANDS,
-            Units.ZERG_SPAWNING_POOL
-        ),
-        UpgradeData(
-            Upgrades.ZERG_GROUND_ARMORS_LEVEL1,
-            Abilities.RESEARCH_ZERG_GROUND_ARMOR,
-            Units.ZERG_EVOLUTION_CHAMBER
-        ),
-        UpgradeData(
-            Upgrades.ZERG_MELEE_WEAPONS_LEVEL1,
-            Abilities.RESEARCH_ZERG_MELEE_WEAPONS,
-            Units.ZERG_EVOLUTION_CHAMBER
-        ),
-        UpgradeData(
-            Upgrades.ZERG_GROUND_ARMORS_LEVEL2,
-            Abilities.RESEARCH_ZERG_GROUND_ARMOR,
-            Units.ZERG_EVOLUTION_CHAMBER,
-            Upgrades.ZERG_GROUND_ARMORS_LEVEL1
-        ),
-        UpgradeData(
-            Upgrades.ZERG_MELEE_WEAPONS_LEVEL2,
-            Abilities.RESEARCH_ZERG_MELEE_WEAPONS,
-            Units.ZERG_EVOLUTION_CHAMBER,
-            Upgrades.ZERG_MELEE_WEAPONS_LEVEL1
-        ),
-        UpgradeData(
-            Upgrades.ZERG_GROUND_ARMORS_LEVEL3,
-            Abilities.RESEARCH_ZERG_GROUND_ARMOR,
-            Units.ZERG_EVOLUTION_CHAMBER,
-            Upgrades.ZERG_GROUND_ARMORS_LEVEL2
-        ),
-        UpgradeData(
-            Upgrades.ZERG_MELEE_WEAPONS_LEVEL3,
-            Abilities.RESEARCH_ZERG_MELEE_WEAPONS,
-            Units.ZERG_EVOLUTION_CHAMBER,
-            Upgrades.ZERG_MELEE_WEAPONS_LEVEL2
-        ),
-        UpgradeData(
-            Upgrades.ZERG_FLYER_ARMORS_LEVEL1,
-            Abilities.RESEARCH_ZERG_FLYER_ARMOR,
-            Units.ZERG_SPIRE
-        ),
-        UpgradeData(
-            Upgrades.ZERG_FLYER_WEAPONS_LEVEL1,
-            Abilities.RESEARCH_ZERG_FLYER_ATTACK,
-            Units.ZERG_SPIRE
-        ),
-        UpgradeData(
-            Upgrades.ZERG_FLYER_ARMORS_LEVEL2,
-            Abilities.RESEARCH_ZERG_FLYER_ARMOR,
-            Units.ZERG_SPIRE,
-            Upgrades.ZERG_FLYER_ARMORS_LEVEL1
-        ),
-        UpgradeData(
-            Upgrades.ZERG_FLYER_WEAPONS_LEVEL2,
-            Abilities.RESEARCH_ZERG_FLYER_ATTACK,
-            Units.ZERG_SPIRE,
-            Upgrades.ZERG_FLYER_WEAPONS_LEVEL1
-        ),
-        UpgradeData(
-            Upgrades.ZERG_FLYER_ARMORS_LEVEL3,
-            Abilities.RESEARCH_ZERG_FLYER_ARMOR,
-            Units.ZERG_SPIRE,
-            Upgrades.ZERG_FLYER_ARMORS_LEVEL2
-        ),
-        UpgradeData(
-            Upgrades.ZERG_FLYER_WEAPONS_LEVEL3,
-            Abilities.RESEARCH_ZERG_FLYER_ATTACK,
-            Units.ZERG_SPIRE,
-            Upgrades.ZERG_FLYER_WEAPONS_LEVEL2
-        ),
-        UpgradeData(
-            Upgrades.ZERGLING_ATTACK_SPEED,
-            Abilities.RESEARCH_ZERGLING_ADRENAL_GLANDS,
-            Units.ZERG_SPAWNING_POOL
-        )
-    ).associateBy { it.upgrade }
-
     val bases by lazy { Bases(this) }
 
     val ownCombatUnits by lazy {
@@ -225,7 +139,7 @@ open class ZergBot(
             .filter {
                 it.canCast(ability)
             }
-            .randomOrNull()
+            .closestTo(position)
             ?: return
         builder.use(ability, position)
     }
@@ -300,16 +214,15 @@ open class ZergBot(
     }
 
     fun tryResearchUpgrade(upgrade: Upgrade) {
-        val upgradeData = upgrades[upgrade] ?: return
+        val ability = researchAbility(upgrade) ?: return
         val building = ownUnits
-            .ofType(upgradeData.unitType)
             .idle
             .filter {
-                it.canCast(upgradeData.ability)
+                it.canCast(ability)
             }
             .randomOrNull()
             ?: return
-        building.use(upgradeData.ability)
+        building.use(ability)
     }
 
     fun canAfford(unitType: UnitType, count: Int = 1) =
@@ -357,10 +270,3 @@ data class Cost(
     operator fun times(factor: Int): Cost =
         Cost(supply * factor, minerals * factor, vespene * factor)
 }
-
-data class UpgradeData(
-    val upgrade: Upgrade,
-    val ability: Ability,
-    val unitType: UnitType,
-    val after: Upgrade? = null
-)

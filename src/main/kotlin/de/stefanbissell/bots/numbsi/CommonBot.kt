@@ -156,22 +156,17 @@ open class CommonBot(
         allUnits
             .firstOrNull { it.tag == tag }
 
-    fun trainingAbility(unityType: UnitType) =
+    fun trainingAbility(unityType: UnitType): Ability? =
         observation()
             .getUnitTypeData(false)[unityType]
             ?.ability
             ?.orElse(null)
 
-    fun canCast(
-        unit: Unit,
-        ability: Ability,
-        ignoreResourceRequirements: Boolean = false
-    ) =
-        query()
-            .getAbilitiesForUnit(unit, ignoreResourceRequirements)
-            .abilities
-            .map { it.ability }
-            .contains(ability)
+    fun researchAbility(upgrade: Upgrade): Ability? =
+        observation()
+            .getUpgradeData(false)[upgrade]
+            ?.ability
+            ?.orElse(null)
 
     fun isHarvestingMinerals(unit: BotUnit) =
         isHarvesting(unit, mineralFieldTypes, mineralBuffs)
@@ -180,11 +175,11 @@ open class CommonBot(
         isHarvesting(unit, vespeneBuildingTypes, vespeneBuffs)
 
     private fun isHarvesting(unit: BotUnit, targets: List<UnitType>, buffs: List<Buffs>): Boolean {
-        val gatherOrder = unit.wrapped.orderOfType(Abilities.HARVEST_GATHER)
+        val gatherOrder = unit.wrapped.orderOfType(Abilities.HARVEST_GATHER_DRONE)
         if (gatherOrder != null) {
             return gatherOrder.targetUnit()?.type in targets
         }
-        val returnOrder = unit.wrapped.orderOfType(Abilities.HARVEST_RETURN)
+        val returnOrder = unit.wrapped.orderOfType(Abilities.HARVEST_RETURN_DRONE)
         if (returnOrder != null) {
             return unit.wrapped.buffs.intersect(buffs).isNotEmpty()
         }

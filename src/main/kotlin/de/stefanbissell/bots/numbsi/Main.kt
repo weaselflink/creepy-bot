@@ -20,6 +20,7 @@ fun main(args: Array<String>) {
         .setup()
         .setRealtime(false)
         .loadSettings(args)
+        .setUseGeneralizedAbilityId(false)
         .setParticipants(
             S2Coordinator.createParticipant(Race.ZERG, NumbsiBot(true)),
             S2Coordinator.createComputer(Race.TERRAN, Difficulty.HARDER)

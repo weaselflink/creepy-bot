@@ -14,14 +14,10 @@ class UpgradeTacker : BotComponent() {
 
     fun isCompletedOrPending(zergBot: ZergBot, upgrade: Upgrade): Boolean {
         if (isCompleted(upgrade)) return true
-        val upgradeData = zergBot.upgrades[upgrade] ?: return false
-        if (upgradeData.after != null && !isCompleted(upgradeData.after)) {
-            return false
-        }
+        val ability = zergBot.researchAbility(upgrade)
         return zergBot
             .ownUnits
-            .ofType(upgradeData.unitType)
             .flatMap { it.orders }
-            .any { it.ability == upgradeData.ability }
+            .any { it.ability == ability }
     }
 }
