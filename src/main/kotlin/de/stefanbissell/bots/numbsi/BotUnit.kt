@@ -163,6 +163,9 @@ fun S2Unit.toBotUnit(bot: CommonBot) = BotUnit(bot, this)
 fun Iterable<UnitInPool>.toBotUnits(bot: CommonBot) =
     map { it.unit().toBotUnit(bot) }
 
+fun List<BotUnit>.ofAlliance(alliance: Alliance) =
+    filter { it.alliance == alliance }
+
 fun List<BotUnit>.ofType(type: UnitType) =
     filter { it.type == type }
 

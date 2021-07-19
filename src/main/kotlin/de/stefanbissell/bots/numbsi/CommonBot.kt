@@ -62,6 +62,16 @@ open class CommonBot(
 
     private val resourceTypes = mineralFieldTypes + vespeneGeyserTypes
 
+    private val unitTypeData: Map<UnitType, UnitTypeData> by lazy {
+        observation()
+            .getUnitTypeData(false)
+    }
+
+    private val upgradeData: Map<Upgrade, UpgradeData> by lazy {
+        observation()
+            .getUpgradeData(false)
+    }
+
     val minerals by lazy {
         observation().minerals
     }
@@ -78,16 +88,25 @@ open class CommonBot(
         observation().foodCap - observation().foodUsed
     }
 
-    private val neutralUnits by lazy {
-        observation()
-            .getUnits(Alliance.NEUTRAL)
-            .toBotUnits(this)
-    }
-
     private val allUnits by lazy {
         observation()
             .units
             .toBotUnits(this)
+    }
+
+    private val neutralUnits by lazy {
+        allUnits
+            .ofAlliance(Alliance.NEUTRAL)
+    }
+
+    val enemyUnits by lazy {
+        allUnits
+            .ofAlliance(Alliance.ENEMY)
+    }
+
+    val ownUnits by lazy {
+        allUnits
+            .ofAlliance(Alliance.SELF)
     }
 
     private val allStructures by lazy {
@@ -95,15 +114,9 @@ open class CommonBot(
             .filter { it.isStructure }
     }
 
-    val ownUnits by lazy {
-        observation()
-            .getUnits(Alliance.SELF)
-            .toBotUnits(this)
-    }
-
     val ownStructures by lazy {
-        allStructures
-            .filter { it.alliance == Alliance.SELF }
+        ownUnits
+            .filter { it.isStructure }
     }
 
     val workers by lazy {
@@ -129,20 +142,14 @@ open class CommonBot(
     val emptyGeysers by lazy {
         vespeneGeysers
             .filter { geyser ->
-                allUnits
+                allStructures
                     .ofTypes(vespeneBuildingTypes)
                     .none { it.position.distance(geyser.position) < 1 }
             }
     }
 
-    val enemyUnits by lazy {
-        observation()
-            .getUnits(Alliance.ENEMY)
-            .toBotUnits(this)
-    }
-
     val ownWorkingVespeneBuildings by lazy {
-        ownUnits
+        ownStructures
             .ofTypes(vespeneBuildingTypes)
             .ready
             .filter {
@@ -157,14 +164,12 @@ open class CommonBot(
             .firstOrNull { it.tag == tag }
 
     fun trainingAbility(unityType: UnitType): Ability? =
-        observation()
-            .getUnitTypeData(false)[unityType]
+        unitTypeData[unityType]
             ?.ability
             ?.orElse(null)
 
     fun researchAbility(upgrade: Upgrade): Ability? =
-        observation()
-            .getUpgradeData(false)[upgrade]
+        upgradeData[upgrade]
             ?.ability
             ?.orElse(null)
 
