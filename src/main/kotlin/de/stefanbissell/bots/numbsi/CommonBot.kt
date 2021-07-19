@@ -109,7 +109,7 @@ open class CommonBot(
             .ofAlliance(Alliance.SELF)
     }
 
-    private val allStructures by lazy {
+    val allStructures by lazy {
         allUnits
             .filter { it.isStructure }
     }

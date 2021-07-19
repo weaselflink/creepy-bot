@@ -3,6 +3,7 @@ package de.stefanbissell.bots.numbsi
 import com.github.ocraft.s2client.bot.S2Agent
 import com.github.ocraft.s2client.protocol.data.*
 import com.github.ocraft.s2client.protocol.spatial.Point2d
+import com.github.ocraft.s2client.protocol.unit.Alliance
 
 open class ZergBot(
     agent: S2Agent
@@ -51,6 +52,10 @@ open class ZergBot(
 
     val queens by lazy {
         ownUnits.ofType(Units.ZERG_QUEEN)
+    }
+
+    val overlords by lazy {
+        ownUnits.ofType(Units.ZERG_OVERLORD)
     }
 
     fun isBuilding(unit: BotUnit): Boolean {
@@ -158,15 +163,7 @@ open class ZergBot(
                     }
             }
             Units.ZERG_HATCHERY -> {
-                val firstBase = gameMap
-                    .expansions
-                    .closestTo(gameMap.ownStart)
-                gameMap
-                    .expansionDistances[firstBase]!!
-                    .filter { (expansion, _) ->
-                        baseBuildings
-                            .none { it.position.distance(expansion) < 4 }
-                    }
+                emptyExpansions(gameMap)
                     .minByOrNull { (_, distance) ->
                         distance
                     }
@@ -230,6 +227,20 @@ open class ZergBot(
 
     fun canAfford(unitType: UnitType, count: Int = 1) =
         canAfford(cost(unitType)?.let { it * count })
+
+    private fun emptyExpansions(gameMap: GameMap): Map<Point2d, Float> {
+        val firstBase = gameMap
+            .expansions
+            .closestTo(gameMap.ownStart)
+        return gameMap
+            .expansionDistances[firstBase]!!
+            .filter { (expansion, _) ->
+                allStructures
+                    .none {
+                        it.position.distance(expansion) - it.radius < 2
+                    }
+            }
+    }
 
     private fun canAfford(upgrade: Upgrade) =
         canAfford(cost(upgrade))

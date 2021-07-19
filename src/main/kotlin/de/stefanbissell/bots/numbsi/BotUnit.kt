@@ -46,6 +46,9 @@ class BotUnit(
     val type: UnitType
         get() = wrapped.type
 
+    val radius: Float
+        get() = wrapped.radius
+
     val position: Point
         get() = wrapped.position
 
