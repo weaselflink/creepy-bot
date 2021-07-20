@@ -3,7 +3,6 @@ package de.stefanbissell.bots.numbsi
 import com.github.ocraft.s2client.bot.S2Agent
 import com.github.ocraft.s2client.protocol.data.*
 import com.github.ocraft.s2client.protocol.spatial.Point2d
-import com.github.ocraft.s2client.protocol.unit.Alliance
 
 open class ZergBot(
     agent: S2Agent
