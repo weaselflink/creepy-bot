@@ -118,6 +118,7 @@ private data class BuildStructure(
             zergBot.tryBuildStructure(buildOrder.gameMap, type)
             return false
         }
+        done = true
         return true
     }
 }
