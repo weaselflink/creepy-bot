@@ -147,7 +147,7 @@ class Strategy(
     }
 
     private fun hasReserves(zergBot: ZergBot) =
-        zergBot.gameTime.fullMinutes < 10 ||
-            (zergBot.gameTime.fullMinutes < 15 && zergBot.minerals > 300 && zergBot.vespene > 200) ||
+        zergBot.gameTime.fullMinutes < 8 ||
+            (zergBot.gameTime.fullMinutes < 12 && zergBot.minerals > 300 && zergBot.vespene > 200) ||
             (zergBot.minerals > 400 && zergBot.vespene > 300)
 }
