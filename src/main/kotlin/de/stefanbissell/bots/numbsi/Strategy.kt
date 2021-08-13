@@ -5,6 +5,7 @@ import com.github.ocraft.s2client.protocol.data.Units
 import com.github.ocraft.s2client.protocol.data.Upgrade
 import com.github.ocraft.s2client.protocol.data.Upgrades
 import kotlin.math.ceil
+import kotlin.math.max
 
 class Strategy(
     private val gameMap: GameMap,
@@ -98,8 +99,7 @@ class Strategy(
     }
 
     private fun expandWhenReady(zergBot: ZergBot) {
-        if (zergBot.observation().minerals > 400 &&
-            !expansionInProgress(zergBot) &&
+        if (((zergBot.minerals > 400 && !expansionInProgress(zergBot)) || zergBot.minerals > 800) &&
             goodSaturation(zergBot)
         ) {
             expand(zergBot)
@@ -108,7 +108,7 @@ class Strategy(
 
     private fun goodSaturation(zergBot: ZergBot) =
         zergBot.bases
-            .sumOf { it.workersNeeded } < 8
+            .sumOf { it.workersNeeded } < max(8, zergBot.gameTime.fullMinutes)
 
     private fun expansionInProgress(zergBot: ZergBot) =
         zergBot.pendingCount(Units.ZERG_HATCHERY) > 0 ||
@@ -149,5 +149,5 @@ class Strategy(
     private fun hasReserves(zergBot: ZergBot) =
         zergBot.gameTime.fullMinutes < 10 ||
             (zergBot.gameTime.fullMinutes < 15 && zergBot.minerals > 300 && zergBot.vespene > 200) ||
-                (zergBot.minerals > 400 && zergBot.vespene > 300)
+            (zergBot.minerals > 400 && zergBot.vespene > 300)
 }
