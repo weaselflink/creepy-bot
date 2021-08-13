@@ -11,5 +11,5 @@
 * does larva injection
 * techs up to mutalisks
 * has (simple) configurable build order
-* spams zerglings an mutalisks
+* spams zerglings and mutalisks
 * expands continuously
