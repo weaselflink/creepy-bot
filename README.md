@@ -1,3 +1,6 @@
+[![Last commit](https://img.shields.io/github/last-commit/weaselflink/star-cruiser)](https://github.com/weaselflink/star-cruiser/commits/master)
+[![Using Kotlin 1.5.20](https://img.shields.io/badge/kotlin-1.5.30--RC-blue)](https://blog.jetbrains.com/kotlin/2021/06/kotlin-1-5-20-released/)
+
 # NumbsiBot
 
 * Zerg bot
