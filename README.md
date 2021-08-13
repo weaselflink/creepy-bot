@@ -7,7 +7,7 @@
 * written in Kotlin
 * uses [Ocraft S2Client](https://github.com/ocraft/ocraft-s2client)
 * solid macro, but does not quite understand unit composition and micro
-* sometimes wins against medium terran AI
+* wins against hard terran AI nearly always
 * does larva injection
 * techs up to mutalisks
 * has (simple) configurable build order
