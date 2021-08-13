@@ -13,3 +13,4 @@
 * has (simple) configurable build order
 * spams zerglings and mutalisks
 * expands continuously
+* no creep spreading yet
