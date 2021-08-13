@@ -24,7 +24,10 @@ class Strategy(
         Units.ZERG_HIVE,
         Upgrades.ZERGLING_ATTACK_SPEED,
         Upgrades.ZERG_GROUND_ARMORS_LEVEL3,
-        Upgrades.ZERG_MELEE_WEAPONS_LEVEL3
+        Upgrades.ZERG_MELEE_WEAPONS_LEVEL3,
+        Units.ZERG_GREATER_SPIRE,
+        Upgrades.ZERG_FLYER_ARMORS_LEVEL2,
+        Upgrades.ZERG_FLYER_WEAPONS_LEVEL2,
     )
 
     override fun onStep(zergBot: ZergBot) {
@@ -109,7 +112,7 @@ class Strategy(
 
     private fun expansionInProgress(zergBot: ZergBot) =
         zergBot.pendingCount(Units.ZERG_HATCHERY) > 0 ||
-                zergBot.baseBuildings.inProgress.count() > 0
+            zergBot.baseBuildings.inProgress.isNotEmpty()
 
     private fun expand(zergBot: ZergBot) {
         zergBot.tryBuildStructure(gameMap, Units.ZERG_HATCHERY)

@@ -192,6 +192,17 @@ open class ZergBot(
                         it.use(Abilities.MORPH_HIVE)
                     }
             }
+            Units.ZERG_GREATER_SPIRE -> {
+                ownStructures
+                    .ready
+                    .filter {
+                        it.canCast(Abilities.MORPH_GREATER_SPIRE, false)
+                    }
+                    .closestTo(gameMap.ownStart)
+                    ?.also {
+                        it.use(Abilities.MORPH_GREATER_SPIRE)
+                    }
+            }
             else -> {
                 bases
                     .map { it.building }
